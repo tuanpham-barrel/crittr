@@ -14,7 +14,7 @@ export default {
     }
   ],
   plugins: [
-    nodeResolve(),
+    nodeResolve({  exportConditions: ['node']  }),
     commonjs()
   ]
 };
