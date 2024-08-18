@@ -1,12 +1,12 @@
 'use strict';
 
 var node_module = require('node:module');
-var util$e = require('util');
+var util$f = require('util');
 var require$$1 = require('path');
 var readline = require('readline');
 var process$1 = require('node:process');
-var os = require('node:os');
-var tty = require('node:tty');
+var os$1 = require('node:os');
+var tty$1 = require('node:tty');
 var require$$0$1 = require('stream');
 var require$$1$2 = require('url');
 var require$$0$3 = require('fs');
@@ -28,7 +28,7 @@ const wrapAnsi256 = (offset = 0) => code => `\u001B[${38 + offset};5;${code}m`;
 
 const wrapAnsi16m = (offset = 0) => (red, green, blue) => `\u001B[${38 + offset};2;${red};${green};${blue}m`;
 
-const styles$1 = {
+const styles$2 = {
 	modifier: {
 		reset: [0, 0],
 		// 21 isn't widely supported and 22 does the same thing
@@ -87,49 +87,49 @@ const styles$1 = {
 	},
 };
 
-Object.keys(styles$1.modifier);
-const foregroundColorNames = Object.keys(styles$1.color);
-const backgroundColorNames = Object.keys(styles$1.bgColor);
+Object.keys(styles$2.modifier);
+const foregroundColorNames = Object.keys(styles$2.color);
+const backgroundColorNames = Object.keys(styles$2.bgColor);
 [...foregroundColorNames, ...backgroundColorNames];
 
 function assembleStyles() {
 	const codes = new Map();
 
-	for (const [groupName, group] of Object.entries(styles$1)) {
+	for (const [groupName, group] of Object.entries(styles$2)) {
 		for (const [styleName, style] of Object.entries(group)) {
-			styles$1[styleName] = {
+			styles$2[styleName] = {
 				open: `\u001B[${style[0]}m`,
 				close: `\u001B[${style[1]}m`,
 			};
 
-			group[styleName] = styles$1[styleName];
+			group[styleName] = styles$2[styleName];
 
 			codes.set(style[0], style[1]);
 		}
 
-		Object.defineProperty(styles$1, groupName, {
+		Object.defineProperty(styles$2, groupName, {
 			value: group,
 			enumerable: false,
 		});
 	}
 
-	Object.defineProperty(styles$1, 'codes', {
+	Object.defineProperty(styles$2, 'codes', {
 		value: codes,
 		enumerable: false,
 	});
 
-	styles$1.color.close = '\u001B[39m';
-	styles$1.bgColor.close = '\u001B[49m';
+	styles$2.color.close = '\u001B[39m';
+	styles$2.bgColor.close = '\u001B[49m';
 
-	styles$1.color.ansi = wrapAnsi16();
-	styles$1.color.ansi256 = wrapAnsi256();
-	styles$1.color.ansi16m = wrapAnsi16m();
-	styles$1.bgColor.ansi = wrapAnsi16(ANSI_BACKGROUND_OFFSET);
-	styles$1.bgColor.ansi256 = wrapAnsi256(ANSI_BACKGROUND_OFFSET);
-	styles$1.bgColor.ansi16m = wrapAnsi16m(ANSI_BACKGROUND_OFFSET);
+	styles$2.color.ansi = wrapAnsi16();
+	styles$2.color.ansi256 = wrapAnsi256();
+	styles$2.color.ansi16m = wrapAnsi16m();
+	styles$2.bgColor.ansi = wrapAnsi16(ANSI_BACKGROUND_OFFSET);
+	styles$2.bgColor.ansi256 = wrapAnsi256(ANSI_BACKGROUND_OFFSET);
+	styles$2.bgColor.ansi16m = wrapAnsi16m(ANSI_BACKGROUND_OFFSET);
 
 	// From https://github.com/Qix-/color-convert/blob/3f0e0d4e92e235796ccb17f6e85c72094a651f49/conversions.js
-	Object.defineProperties(styles$1, {
+	Object.defineProperties(styles$2, {
 		rgbToAnsi256: {
 			value(red, green, blue) {
 				// We use the extended greyscale palette here, with the exception of
@@ -179,7 +179,7 @@ function assembleStyles() {
 			enumerable: false,
 		},
 		hexToAnsi256: {
-			value: hex => styles$1.rgbToAnsi256(...styles$1.hexToRgb(hex)),
+			value: hex => styles$2.rgbToAnsi256(...styles$2.hexToRgb(hex)),
 			enumerable: false,
 		},
 		ansi256ToAnsi: {
@@ -228,63 +228,63 @@ function assembleStyles() {
 			enumerable: false,
 		},
 		rgbToAnsi: {
-			value: (red, green, blue) => styles$1.ansi256ToAnsi(styles$1.rgbToAnsi256(red, green, blue)),
+			value: (red, green, blue) => styles$2.ansi256ToAnsi(styles$2.rgbToAnsi256(red, green, blue)),
 			enumerable: false,
 		},
 		hexToAnsi: {
-			value: hex => styles$1.ansi256ToAnsi(styles$1.hexToAnsi256(hex)),
+			value: hex => styles$2.ansi256ToAnsi(styles$2.hexToAnsi256(hex)),
 			enumerable: false,
 		},
 	});
 
-	return styles$1;
+	return styles$2;
 }
 
-const ansiStyles = assembleStyles();
+const ansiStyles$2 = assembleStyles();
 
 // From: https://github.com/sindresorhus/has-flag/blob/main/index.js
 /// function hasFlag(flag, argv = globalThis.Deno?.args ?? process.argv) {
-function hasFlag$1(flag, argv = globalThis.Deno ? globalThis.Deno.args : process$1.argv) {
+function hasFlag$2(flag, argv = globalThis.Deno ? globalThis.Deno.args : process$1.argv) {
 	const prefix = flag.startsWith('-') ? '' : (flag.length === 1 ? '-' : '--');
 	const position = argv.indexOf(prefix + flag);
 	const terminatorPosition = argv.indexOf('--');
 	return position !== -1 && (terminatorPosition === -1 || position < terminatorPosition);
 }
 
-const {env: env$1} = process$1;
+const {env: env$2} = process$1;
 
 let flagForceColor;
 if (
-	hasFlag$1('no-color')
-	|| hasFlag$1('no-colors')
-	|| hasFlag$1('color=false')
-	|| hasFlag$1('color=never')
+	hasFlag$2('no-color')
+	|| hasFlag$2('no-colors')
+	|| hasFlag$2('color=false')
+	|| hasFlag$2('color=never')
 ) {
 	flagForceColor = 0;
 } else if (
-	hasFlag$1('color')
-	|| hasFlag$1('colors')
-	|| hasFlag$1('color=true')
-	|| hasFlag$1('color=always')
+	hasFlag$2('color')
+	|| hasFlag$2('colors')
+	|| hasFlag$2('color=true')
+	|| hasFlag$2('color=always')
 ) {
 	flagForceColor = 1;
 }
 
 function envForceColor() {
-	if ('FORCE_COLOR' in env$1) {
-		if (env$1.FORCE_COLOR === 'true') {
+	if ('FORCE_COLOR' in env$2) {
+		if (env$2.FORCE_COLOR === 'true') {
 			return 1;
 		}
 
-		if (env$1.FORCE_COLOR === 'false') {
+		if (env$2.FORCE_COLOR === 'false') {
 			return 0;
 		}
 
-		return env$1.FORCE_COLOR.length === 0 ? 1 : Math.min(Number.parseInt(env$1.FORCE_COLOR, 10), 3);
+		return env$2.FORCE_COLOR.length === 0 ? 1 : Math.min(Number.parseInt(env$2.FORCE_COLOR, 10), 3);
 	}
 }
 
-function translateLevel(level) {
+function translateLevel$1(level) {
 	if (level === 0) {
 		return false;
 	}
@@ -310,20 +310,20 @@ function _supportsColor(haveStream, {streamIsTTY, sniffFlags = true} = {}) {
 	}
 
 	if (sniffFlags) {
-		if (hasFlag$1('color=16m')
-			|| hasFlag$1('color=full')
-			|| hasFlag$1('color=truecolor')) {
+		if (hasFlag$2('color=16m')
+			|| hasFlag$2('color=full')
+			|| hasFlag$2('color=truecolor')) {
 			return 3;
 		}
 
-		if (hasFlag$1('color=256')) {
+		if (hasFlag$2('color=256')) {
 			return 2;
 		}
 	}
 
 	// Check for Azure DevOps pipelines.
 	// Has to be above the `!streamIsTTY` check.
-	if ('TF_BUILD' in env$1 && 'AGENT_NAME' in env$1) {
+	if ('TF_BUILD' in env$2 && 'AGENT_NAME' in env$2) {
 		return 1;
 	}
 
@@ -333,14 +333,14 @@ function _supportsColor(haveStream, {streamIsTTY, sniffFlags = true} = {}) {
 
 	const min = forceColor || 0;
 
-	if (env$1.TERM === 'dumb') {
+	if (env$2.TERM === 'dumb') {
 		return min;
 	}
 
 	if (process$1.platform === 'win32') {
 		// Windows 10 build 10586 is the first Windows release that supports 256 colors.
 		// Windows 10 build 14931 is the first release that supports 16m/TrueColor.
-		const osRelease = os.release().split('.');
+		const osRelease = os$1.release().split('.');
 		if (
 			Number(osRelease[0]) >= 10
 			&& Number(osRelease[2]) >= 10_586
@@ -351,34 +351,34 @@ function _supportsColor(haveStream, {streamIsTTY, sniffFlags = true} = {}) {
 		return 1;
 	}
 
-	if ('CI' in env$1) {
-		if ('GITHUB_ACTIONS' in env$1 || 'GITEA_ACTIONS' in env$1) {
+	if ('CI' in env$2) {
+		if ('GITHUB_ACTIONS' in env$2 || 'GITEA_ACTIONS' in env$2) {
 			return 3;
 		}
 
-		if (['TRAVIS', 'CIRCLECI', 'APPVEYOR', 'GITLAB_CI', 'BUILDKITE', 'DRONE'].some(sign => sign in env$1) || env$1.CI_NAME === 'codeship') {
+		if (['TRAVIS', 'CIRCLECI', 'APPVEYOR', 'GITLAB_CI', 'BUILDKITE', 'DRONE'].some(sign => sign in env$2) || env$2.CI_NAME === 'codeship') {
 			return 1;
 		}
 
 		return min;
 	}
 
-	if ('TEAMCITY_VERSION' in env$1) {
-		return /^(9\.(0*[1-9]\d*)\.|\d{2,}\.)/.test(env$1.TEAMCITY_VERSION) ? 1 : 0;
+	if ('TEAMCITY_VERSION' in env$2) {
+		return /^(9\.(0*[1-9]\d*)\.|\d{2,}\.)/.test(env$2.TEAMCITY_VERSION) ? 1 : 0;
 	}
 
-	if (env$1.COLORTERM === 'truecolor') {
+	if (env$2.COLORTERM === 'truecolor') {
 		return 3;
 	}
 
-	if (env$1.TERM === 'xterm-kitty') {
+	if (env$2.TERM === 'xterm-kitty') {
 		return 3;
 	}
 
-	if ('TERM_PROGRAM' in env$1) {
-		const version = Number.parseInt((env$1.TERM_PROGRAM_VERSION || '').split('.')[0], 10);
+	if ('TERM_PROGRAM' in env$2) {
+		const version = Number.parseInt((env$2.TERM_PROGRAM_VERSION || '').split('.')[0], 10);
 
-		switch (env$1.TERM_PROGRAM) {
+		switch (env$2.TERM_PROGRAM) {
 			case 'iTerm.app': {
 				return version >= 3 ? 3 : 2;
 			}
@@ -390,15 +390,15 @@ function _supportsColor(haveStream, {streamIsTTY, sniffFlags = true} = {}) {
 		}
 	}
 
-	if (/-256(color)?$/i.test(env$1.TERM)) {
+	if (/-256(color)?$/i.test(env$2.TERM)) {
 		return 2;
 	}
 
-	if (/^screen|^xterm|^vt100|^vt220|^rxvt|color|ansi|cygwin|linux/i.test(env$1.TERM)) {
+	if (/^screen|^xterm|^vt100|^vt220|^rxvt|color|ansi|cygwin|linux/i.test(env$2.TERM)) {
 		return 1;
 	}
 
-	if ('COLORTERM' in env$1) {
+	if ('COLORTERM' in env$2) {
 		return 1;
 	}
 
@@ -411,16 +411,16 @@ function createSupportsColor(stream, options = {}) {
 		...options,
 	});
 
-	return translateLevel(level);
+	return translateLevel$1(level);
 }
 
-const supportsColor = {
-	stdout: createSupportsColor({isTTY: tty.isatty(1)}),
-	stderr: createSupportsColor({isTTY: tty.isatty(2)}),
+const supportsColor$1 = {
+	stdout: createSupportsColor({isTTY: tty$1.isatty(1)}),
+	stderr: createSupportsColor({isTTY: tty$1.isatty(2)}),
 };
 
 // TODO: When targeting Node.js 16, use `String.prototype.replaceAll`.
-function stringReplaceAll(string, substring, replacer) {
+function stringReplaceAll$2(string, substring, replacer) {
 	let index = string.indexOf(substring);
 	if (index === -1) {
 		return string;
@@ -439,7 +439,7 @@ function stringReplaceAll(string, substring, replacer) {
 	return returnValue;
 }
 
-function stringEncaseCRLFWithFirstIndex(string, prefix, postfix, index) {
+function stringEncaseCRLFWithFirstIndex$2(string, prefix, postfix, index) {
 	let endIndex = 0;
 	let returnValue = '';
 	do {
@@ -453,35 +453,35 @@ function stringEncaseCRLFWithFirstIndex(string, prefix, postfix, index) {
 	return returnValue;
 }
 
-const {stdout: stdoutColor, stderr: stderrColor} = supportsColor;
+const {stdout: stdoutColor$1, stderr: stderrColor$1} = supportsColor$1;
 
 const GENERATOR = Symbol('GENERATOR');
 const STYLER = Symbol('STYLER');
 const IS_EMPTY = Symbol('IS_EMPTY');
 
 // `supportsColor.level` → `ansiStyles.color[name]` mapping
-const levelMapping = [
+const levelMapping$1 = [
 	'ansi',
 	'ansi',
 	'ansi256',
 	'ansi16m',
 ];
 
-const styles = Object.create(null);
+const styles$1 = Object.create(null);
 
-const applyOptions = (object, options = {}) => {
+const applyOptions$1 = (object, options = {}) => {
 	if (options.level && !(Number.isInteger(options.level) && options.level >= 0 && options.level <= 3)) {
 		throw new Error('The `level` option should be an integer from 0 to 3');
 	}
 
 	// Detect level if not set manually
-	const colorLevel = stdoutColor ? stdoutColor.level : 0;
+	const colorLevel = stdoutColor$1 ? stdoutColor$1.level : 0;
 	object.level = options.level === undefined ? colorLevel : options.level;
 };
 
-const chalkFactory = options => {
+const chalkFactory$1 = options => {
 	const chalk = (...strings) => strings.join(' ');
-	applyOptions(chalk, options);
+	applyOptions$1(chalk, options);
 
 	Object.setPrototypeOf(chalk, createChalk.prototype);
 
@@ -489,24 +489,24 @@ const chalkFactory = options => {
 };
 
 function createChalk(options) {
-	return chalkFactory(options);
+	return chalkFactory$1(options);
 }
 
 Object.setPrototypeOf(createChalk.prototype, Function.prototype);
 
-for (const [styleName, style] of Object.entries(ansiStyles)) {
-	styles[styleName] = {
+for (const [styleName, style] of Object.entries(ansiStyles$2)) {
+	styles$1[styleName] = {
 		get() {
-			const builder = createBuilder(this, createStyler(style.open, style.close, this[STYLER]), this[IS_EMPTY]);
+			const builder = createBuilder$1(this, createStyler$1(style.open, style.close, this[STYLER]), this[IS_EMPTY]);
 			Object.defineProperty(this, styleName, {value: builder});
 			return builder;
 		},
 	};
 }
 
-styles.visible = {
+styles$1.visible = {
 	get() {
-		const builder = createBuilder(this, this[STYLER], true);
+		const builder = createBuilder$1(this, this[STYLER], true);
 		Object.defineProperty(this, 'visible', {value: builder});
 		return builder;
 	},
@@ -515,50 +515,50 @@ styles.visible = {
 const getModelAnsi = (model, level, type, ...arguments_) => {
 	if (model === 'rgb') {
 		if (level === 'ansi16m') {
-			return ansiStyles[type].ansi16m(...arguments_);
+			return ansiStyles$2[type].ansi16m(...arguments_);
 		}
 
 		if (level === 'ansi256') {
-			return ansiStyles[type].ansi256(ansiStyles.rgbToAnsi256(...arguments_));
+			return ansiStyles$2[type].ansi256(ansiStyles$2.rgbToAnsi256(...arguments_));
 		}
 
-		return ansiStyles[type].ansi(ansiStyles.rgbToAnsi(...arguments_));
+		return ansiStyles$2[type].ansi(ansiStyles$2.rgbToAnsi(...arguments_));
 	}
 
 	if (model === 'hex') {
-		return getModelAnsi('rgb', level, type, ...ansiStyles.hexToRgb(...arguments_));
+		return getModelAnsi('rgb', level, type, ...ansiStyles$2.hexToRgb(...arguments_));
 	}
 
-	return ansiStyles[type][model](...arguments_);
+	return ansiStyles$2[type][model](...arguments_);
 };
 
-const usedModels = ['rgb', 'hex', 'ansi256'];
+const usedModels$1 = ['rgb', 'hex', 'ansi256'];
 
-for (const model of usedModels) {
-	styles[model] = {
+for (const model of usedModels$1) {
+	styles$1[model] = {
 		get() {
 			const {level} = this;
 			return function (...arguments_) {
-				const styler = createStyler(getModelAnsi(model, levelMapping[level], 'color', ...arguments_), ansiStyles.color.close, this[STYLER]);
-				return createBuilder(this, styler, this[IS_EMPTY]);
+				const styler = createStyler$1(getModelAnsi(model, levelMapping$1[level], 'color', ...arguments_), ansiStyles$2.color.close, this[STYLER]);
+				return createBuilder$1(this, styler, this[IS_EMPTY]);
 			};
 		},
 	};
 
 	const bgModel = 'bg' + model[0].toUpperCase() + model.slice(1);
-	styles[bgModel] = {
+	styles$1[bgModel] = {
 		get() {
 			const {level} = this;
 			return function (...arguments_) {
-				const styler = createStyler(getModelAnsi(model, levelMapping[level], 'bgColor', ...arguments_), ansiStyles.bgColor.close, this[STYLER]);
-				return createBuilder(this, styler, this[IS_EMPTY]);
+				const styler = createStyler$1(getModelAnsi(model, levelMapping$1[level], 'bgColor', ...arguments_), ansiStyles$2.bgColor.close, this[STYLER]);
+				return createBuilder$1(this, styler, this[IS_EMPTY]);
 			};
 		},
 	};
 }
 
-const proto = Object.defineProperties(() => {}, {
-	...styles,
+const proto$1 = Object.defineProperties(() => {}, {
+	...styles$1,
 	level: {
 		enumerable: true,
 		get() {
@@ -570,7 +570,7 @@ const proto = Object.defineProperties(() => {}, {
 	},
 });
 
-const createStyler = (open, close, parent) => {
+const createStyler$1 = (open, close, parent) => {
 	let openAll;
 	let closeAll;
 	if (parent === undefined) {
@@ -590,14 +590,14 @@ const createStyler = (open, close, parent) => {
 	};
 };
 
-const createBuilder = (self, _styler, _isEmpty) => {
+const createBuilder$1 = (self, _styler, _isEmpty) => {
 	// Single argument is hot path, implicit coercion is faster than anything
 	// eslint-disable-next-line no-implicit-coercion
-	const builder = (...arguments_) => applyStyle(builder, (arguments_.length === 1) ? ('' + arguments_[0]) : arguments_.join(' '));
+	const builder = (...arguments_) => applyStyle$1(builder, (arguments_.length === 1) ? ('' + arguments_[0]) : arguments_.join(' '));
 
 	// We alter the prototype because we must return a function, but there is
 	// no way to create a function with a different prototype
-	Object.setPrototypeOf(builder, proto);
+	Object.setPrototypeOf(builder, proto$1);
 
 	builder[GENERATOR] = self;
 	builder[STYLER] = _styler;
@@ -606,7 +606,7 @@ const createBuilder = (self, _styler, _isEmpty) => {
 	return builder;
 };
 
-const applyStyle = (self, string) => {
+const applyStyle$1 = (self, string) => {
 	if (self.level <= 0 || !string) {
 		return self[IS_EMPTY] ? '' : string;
 	}
@@ -623,7 +623,7 @@ const applyStyle = (self, string) => {
 			// Replace any instances already present with a re-opening code
 			// otherwise only the part of the string until said closing code
 			// will be colored, and the rest will simply be 'plain'.
-			string = stringReplaceAll(string, styler.close, styler.open);
+			string = stringReplaceAll$2(string, styler.close, styler.open);
 
 			styler = styler.parent;
 		}
@@ -634,16 +634,16 @@ const applyStyle = (self, string) => {
 	// after next line to fix a bleed issue on macOS: https://github.com/chalk/chalk/pull/92
 	const lfIndex = string.indexOf('\n');
 	if (lfIndex !== -1) {
-		string = stringEncaseCRLFWithFirstIndex(string, closeAll, openAll, lfIndex);
+		string = stringEncaseCRLFWithFirstIndex$2(string, closeAll, openAll, lfIndex);
 	}
 
 	return openAll + string + closeAll;
 };
 
-Object.defineProperties(createChalk.prototype, styles);
+Object.defineProperties(createChalk.prototype, styles$1);
 
-const chalk = createChalk();
-createChalk({level: stderrColor ? stderrColor.level : 0});
+const chalk$2 = createChalk();
+createChalk({level: stderrColor$1 ? stderrColor$1.level : 0});
 
 function isUnicodeSupported() {
 	if (process$1.platform !== 'win32') {
@@ -1095,7 +1095,7 @@ var defaultLogLevels = {
   warn: 3,
   error: 4
 };
-var { green, grey, red, underline, yellow } = chalk;
+var { green, grey, red, underline, yellow } = chalk$2;
 var isPreviousLogInteractive = false;
 function defaultScopeFormatter(scopes) {
   return `[${scopes.join("::")}]`;
@@ -1223,7 +1223,7 @@ var _SignaleImpl = class _SignaleImpl {
     return `[${this.timestamp}]`;
   }
   _formatMessage(str) {
-    return util$e.format(...this._arrayify(str));
+    return util$f.format(...this._arrayify(str));
   }
   _meta() {
     const meta = [];
@@ -1270,7 +1270,7 @@ var _SignaleImpl = class _SignaleImpl {
         signale2.push(additional.prefix);
       }
     }
-    const colorize = type.color ? chalk[type.color] : chalk.white;
+    const colorize = type.color ? chalk$2[type.color] : chalk$2.white;
     if (this._config.displayBadge && type.badge) {
       signale2.push(colorize(this._padEnd(type.badge, type.badge.length + 1)));
     }
@@ -2033,7 +2033,7 @@ var polyfills = polyfills$1;
 var legacy = legacyStreams;
 var clone$1 = clone_1;
 
-var util$d = util$e;
+var util$e = util$f;
 
 /* istanbul ignore next - node 0.x polyfill */
 var gracefulQueue;
@@ -2060,11 +2060,11 @@ function publishQueue(context, queue) {
 }
 
 var debug$3 = noop$1;
-if (util$d.debuglog)
-  debug$3 = util$d.debuglog('gfs4');
+if (util$e.debuglog)
+  debug$3 = util$e.debuglog('gfs4');
 else if (/\bgfs4\b/i.test(process.env.NODE_DEBUG || ''))
   debug$3 = function() {
-    var m = util$d.format.apply(util$d, arguments);
+    var m = util$e.format.apply(util$e, arguments);
     m = 'GFS4: ' + m.split(/\n/).join('\nGFS4: ');
     console.error(m);
   };
@@ -2623,13 +2623,13 @@ var makeDir$1 = {};
 
 var utils$1 = {};
 
-const path$j = require$$1;
+const path$k = require$$1;
 
 // https://github.com/nodejs/node/issues/8987
 // https://github.com/libuv/libuv/pull/1088
 utils$1.checkPath = function checkPath (pth) {
   if (process.platform === 'win32') {
-    const pathHasInvalidWinCharacters = /[<>:"|?*]/.test(pth.replace(path$j.parse(pth).root, ''));
+    const pathHasInvalidWinCharacters = /[<>:"|?*]/.test(pth.replace(path$k.parse(pth).root, ''));
 
     if (pathHasInvalidWinCharacters) {
       const error = new Error(`Path contains invalid characters: ${pth}`);
@@ -2728,7 +2728,7 @@ var utimes = {
 };
 
 const fs$g = fs$l;
-const path$i = require$$1;
+const path$j = require$$1;
 const u$b = universalify$1.fromPromise;
 
 function getStats$1 (src, dest, opts) {
@@ -2763,8 +2763,8 @@ async function checkPaths (src, dest, funcName, opts) {
   const { srcStat, destStat } = await getStats$1(src, dest, opts);
   if (destStat) {
     if (areIdentical$2(srcStat, destStat)) {
-      const srcBaseName = path$i.basename(src);
-      const destBaseName = path$i.basename(dest);
+      const srcBaseName = path$j.basename(src);
+      const destBaseName = path$j.basename(dest);
       if (funcName === 'move' &&
         srcBaseName !== destBaseName &&
         srcBaseName.toLowerCase() === destBaseName.toLowerCase()) {
@@ -2792,8 +2792,8 @@ function checkPathsSync (src, dest, funcName, opts) {
 
   if (destStat) {
     if (areIdentical$2(srcStat, destStat)) {
-      const srcBaseName = path$i.basename(src);
-      const destBaseName = path$i.basename(dest);
+      const srcBaseName = path$j.basename(src);
+      const destBaseName = path$j.basename(dest);
       if (funcName === 'move' &&
         srcBaseName !== destBaseName &&
         srcBaseName.toLowerCase() === destBaseName.toLowerCase()) {
@@ -2820,9 +2820,9 @@ function checkPathsSync (src, dest, funcName, opts) {
 // checks the src and dest inodes. It starts from the deepest
 // parent and stops once it reaches the src parent or the root path.
 async function checkParentPaths (src, srcStat, dest, funcName) {
-  const srcParent = path$i.resolve(path$i.dirname(src));
-  const destParent = path$i.resolve(path$i.dirname(dest));
-  if (destParent === srcParent || destParent === path$i.parse(destParent).root) return
+  const srcParent = path$j.resolve(path$j.dirname(src));
+  const destParent = path$j.resolve(path$j.dirname(dest));
+  if (destParent === srcParent || destParent === path$j.parse(destParent).root) return
 
   let destStat;
   try {
@@ -2840,9 +2840,9 @@ async function checkParentPaths (src, srcStat, dest, funcName) {
 }
 
 function checkParentPathsSync (src, srcStat, dest, funcName) {
-  const srcParent = path$i.resolve(path$i.dirname(src));
-  const destParent = path$i.resolve(path$i.dirname(dest));
-  if (destParent === srcParent || destParent === path$i.parse(destParent).root) return
+  const srcParent = path$j.resolve(path$j.dirname(src));
+  const destParent = path$j.resolve(path$j.dirname(dest));
+  if (destParent === srcParent || destParent === path$j.parse(destParent).root) return
   let destStat;
   try {
     destStat = fs$g.statSync(destParent, { bigint: true });
@@ -2863,8 +2863,8 @@ function areIdentical$2 (srcStat, destStat) {
 // return true if dest is a subdir of src, otherwise false.
 // It only checks the path strings.
 function isSrcSubdir (src, dest) {
-  const srcArr = path$i.resolve(src).split(path$i.sep).filter(i => i);
-  const destArr = path$i.resolve(dest).split(path$i.sep).filter(i => i);
+  const srcArr = path$j.resolve(src).split(path$j.sep).filter(i => i);
+  const destArr = path$j.resolve(dest).split(path$j.sep).filter(i => i);
   return srcArr.every((cur, i) => destArr[i] === cur)
 }
 
@@ -2885,7 +2885,7 @@ var stat$4 = {
 };
 
 const fs$f = fs$l;
-const path$h = require$$1;
+const path$i = require$$1;
 const { mkdirs: mkdirs$1 } = mkdirs$2;
 const { pathExists: pathExists$5 } = pathExists_1;
 const { utimesMillis } = utimes;
@@ -2917,7 +2917,7 @@ async function copy$2 (src, dest, opts = {}) {
   if (!include) return
 
   // check if the parent of dest exists, and create it if it doesn't exist
-  const destParent = path$h.dirname(dest);
+  const destParent = path$i.dirname(dest);
   const dirExists = await pathExists$5(destParent);
   if (!dirExists) {
     await mkdirs$1(destParent);
@@ -3001,8 +3001,8 @@ async function onDir$1 (srcStat, destStat, src, dest, opts) {
 
   // loop through the files in the current directory to copy everything
   await Promise.all(items.map(async item => {
-    const srcItem = path$h.join(src, item);
-    const destItem = path$h.join(dest, item);
+    const srcItem = path$i.join(src, item);
+    const destItem = path$i.join(dest, item);
 
     // skip the item if it is matches by the filter function
     const include = await runFilter(srcItem, destItem, opts);
@@ -3023,7 +3023,7 @@ async function onDir$1 (srcStat, destStat, src, dest, opts) {
 async function onLink$1 (destStat, src, dest, opts) {
   let resolvedSrc = await fs$f.readlink(src);
   if (opts.dereference) {
-    resolvedSrc = path$h.resolve(process.cwd(), resolvedSrc);
+    resolvedSrc = path$i.resolve(process.cwd(), resolvedSrc);
   }
   if (!destStat) {
     return fs$f.symlink(resolvedSrc, dest)
@@ -3040,7 +3040,7 @@ async function onLink$1 (destStat, src, dest, opts) {
     throw e
   }
   if (opts.dereference) {
-    resolvedDest = path$h.resolve(process.cwd(), resolvedDest);
+    resolvedDest = path$i.resolve(process.cwd(), resolvedDest);
   }
   if (stat$3.isSrcSubdir(resolvedSrc, resolvedDest)) {
     throw new Error(`Cannot copy '${resolvedSrc}' to a subdirectory of itself, '${resolvedDest}'.`)
@@ -3061,7 +3061,7 @@ async function onLink$1 (destStat, src, dest, opts) {
 var copy_1 = copy$2;
 
 const fs$e = gracefulFs;
-const path$g = require$$1;
+const path$h = require$$1;
 const mkdirsSync$1 = mkdirs$2.mkdirsSync;
 const utimesMillisSync = utimes.utimesMillisSync;
 const stat$2 = stat$4;
@@ -3087,7 +3087,7 @@ function copySync$1 (src, dest, opts) {
   const { srcStat, destStat } = stat$2.checkPathsSync(src, dest, 'copy', opts);
   stat$2.checkParentPathsSync(src, srcStat, dest, 'copy');
   if (opts.filter && !opts.filter(src, dest)) return
-  const destParent = path$g.dirname(dest);
+  const destParent = path$h.dirname(dest);
   if (!fs$e.existsSync(destParent)) mkdirsSync$1(destParent);
   return getStats(destStat, src, dest, opts)
 }
@@ -3170,8 +3170,8 @@ function copyDir (src, dest, opts) {
 }
 
 function copyDirItem (item, src, dest, opts) {
-  const srcItem = path$g.join(src, item);
-  const destItem = path$g.join(dest, item);
+  const srcItem = path$h.join(src, item);
+  const destItem = path$h.join(dest, item);
   if (opts.filter && !opts.filter(srcItem, destItem)) return
   const { destStat } = stat$2.checkPathsSync(srcItem, destItem, 'copy', opts);
   return getStats(destStat, srcItem, destItem, opts)
@@ -3180,7 +3180,7 @@ function copyDirItem (item, src, dest, opts) {
 function onLink (destStat, src, dest, opts) {
   let resolvedSrc = fs$e.readlinkSync(src);
   if (opts.dereference) {
-    resolvedSrc = path$g.resolve(process.cwd(), resolvedSrc);
+    resolvedSrc = path$h.resolve(process.cwd(), resolvedSrc);
   }
 
   if (!destStat) {
@@ -3197,7 +3197,7 @@ function onLink (destStat, src, dest, opts) {
       throw err
     }
     if (opts.dereference) {
-      resolvedDest = path$g.resolve(process.cwd(), resolvedDest);
+      resolvedDest = path$h.resolve(process.cwd(), resolvedDest);
     }
     if (stat$2.isSrcSubdir(resolvedSrc, resolvedDest)) {
       throw new Error(`Cannot copy '${resolvedSrc}' to a subdirectory of itself, '${resolvedDest}'.`)
@@ -3244,7 +3244,7 @@ var remove_1 = {
 
 const u$8 = universalify$1.fromPromise;
 const fs$c = fs$l;
-const path$f = require$$1;
+const path$g = require$$1;
 const mkdir$3 = mkdirs$2;
 const remove$1 = remove_1;
 
@@ -3256,7 +3256,7 @@ const emptyDir = u$8(async function emptyDir (dir) {
     return mkdir$3.mkdirs(dir)
   }
 
-  return Promise.all(items.map(item => remove$1.remove(path$f.join(dir, item))))
+  return Promise.all(items.map(item => remove$1.remove(path$g.join(dir, item))))
 });
 
 function emptyDirSync (dir) {
@@ -3268,7 +3268,7 @@ function emptyDirSync (dir) {
   }
 
   items.forEach(item => {
-    item = path$f.join(dir, item);
+    item = path$g.join(dir, item);
     remove$1.removeSync(item);
   });
 }
@@ -3281,7 +3281,7 @@ var empty = {
 };
 
 const u$7 = universalify$1.fromPromise;
-const path$e = require$$1;
+const path$f = require$$1;
 const fs$b = fs$l;
 const mkdir$2 = mkdirs$2;
 
@@ -3292,7 +3292,7 @@ async function createFile$1 (file) {
   } catch { }
   if (stats && stats.isFile()) return
 
-  const dir = path$e.dirname(file);
+  const dir = path$f.dirname(file);
 
   let dirStats = null;
   try {
@@ -3324,7 +3324,7 @@ function createFileSync$1 (file) {
   } catch { }
   if (stats && stats.isFile()) return
 
-  const dir = path$e.dirname(file);
+  const dir = path$f.dirname(file);
   try {
     if (!fs$b.statSync(dir).isDirectory()) {
       // parent is not a directory
@@ -3346,7 +3346,7 @@ var file = {
 };
 
 const u$6 = universalify$1.fromPromise;
-const path$d = require$$1;
+const path$e = require$$1;
 const fs$a = fs$l;
 const mkdir$1 = mkdirs$2;
 const { pathExists: pathExists$4 } = pathExists_1;
@@ -3370,7 +3370,7 @@ async function createLink$1 (srcpath, dstpath) {
 
   if (dstStat && areIdentical$1(srcStat, dstStat)) return
 
-  const dir = path$d.dirname(dstpath);
+  const dir = path$e.dirname(dstpath);
 
   const dirExists = await pathExists$4(dir);
 
@@ -3395,7 +3395,7 @@ function createLinkSync$1 (srcpath, dstpath) {
     throw err
   }
 
-  const dir = path$d.dirname(dstpath);
+  const dir = path$e.dirname(dstpath);
   const dirExists = fs$a.existsSync(dir);
   if (dirExists) return fs$a.linkSync(srcpath, dstpath)
   mkdir$1.mkdirsSync(dir);
@@ -3408,7 +3408,7 @@ var link = {
   createLinkSync: createLinkSync$1
 };
 
-const path$c = require$$1;
+const path$d = require$$1;
 const fs$9 = fs$l;
 const { pathExists: pathExists$3 } = pathExists_1;
 
@@ -3437,7 +3437,7 @@ const u$5 = universalify$1.fromPromise;
  */
 
 async function symlinkPaths$1 (srcpath, dstpath) {
-  if (path$c.isAbsolute(srcpath)) {
+  if (path$d.isAbsolute(srcpath)) {
     try {
       await fs$9.lstat(srcpath);
     } catch (err) {
@@ -3451,8 +3451,8 @@ async function symlinkPaths$1 (srcpath, dstpath) {
     }
   }
 
-  const dstdir = path$c.dirname(dstpath);
-  const relativeToDst = path$c.join(dstdir, srcpath);
+  const dstdir = path$d.dirname(dstpath);
+  const relativeToDst = path$d.join(dstdir, srcpath);
 
   const exists = await pathExists$3(relativeToDst);
   if (exists) {
@@ -3471,12 +3471,12 @@ async function symlinkPaths$1 (srcpath, dstpath) {
 
   return {
     toCwd: srcpath,
-    toDst: path$c.relative(dstdir, srcpath)
+    toDst: path$d.relative(dstdir, srcpath)
   }
 }
 
 function symlinkPathsSync$1 (srcpath, dstpath) {
-  if (path$c.isAbsolute(srcpath)) {
+  if (path$d.isAbsolute(srcpath)) {
     const exists = fs$9.existsSync(srcpath);
     if (!exists) throw new Error('absolute srcpath does not exist')
     return {
@@ -3485,8 +3485,8 @@ function symlinkPathsSync$1 (srcpath, dstpath) {
     }
   }
 
-  const dstdir = path$c.dirname(dstpath);
-  const relativeToDst = path$c.join(dstdir, srcpath);
+  const dstdir = path$d.dirname(dstpath);
+  const relativeToDst = path$d.join(dstdir, srcpath);
   const exists = fs$9.existsSync(relativeToDst);
   if (exists) {
     return {
@@ -3499,7 +3499,7 @@ function symlinkPathsSync$1 (srcpath, dstpath) {
   if (!srcExists) throw new Error('relative srcpath does not exist')
   return {
     toCwd: srcpath,
-    toDst: path$c.relative(dstdir, srcpath)
+    toDst: path$d.relative(dstdir, srcpath)
   }
 }
 
@@ -3542,7 +3542,7 @@ var symlinkType_1 = {
 };
 
 const u$3 = universalify$1.fromPromise;
-const path$b = require$$1;
+const path$c = require$$1;
 const fs$7 = fs$l;
 
 const { mkdirs, mkdirsSync } = mkdirs$2;
@@ -3572,7 +3572,7 @@ async function createSymlink$1 (srcpath, dstpath, type) {
   const relative = await symlinkPaths(srcpath, dstpath);
   srcpath = relative.toDst;
   const toType = await symlinkType(relative.toCwd, type);
-  const dir = path$b.dirname(dstpath);
+  const dir = path$c.dirname(dstpath);
 
   if (!(await pathExists$2(dir))) {
     await mkdirs(dir);
@@ -3595,7 +3595,7 @@ function createSymlinkSync$1 (srcpath, dstpath, type) {
   const relative = symlinkPathsSync(srcpath, dstpath);
   srcpath = relative.toDst;
   type = symlinkTypeSync(relative.toCwd, type);
-  const dir = path$b.dirname(dstpath);
+  const dir = path$c.dirname(dstpath);
   const exists = fs$7.existsSync(dir);
   if (exists) return fs$7.symlinkSync(srcpath, dstpath, type)
   mkdirsSync(dir);
@@ -3745,12 +3745,12 @@ var jsonfile = {
 
 const u$2 = universalify$1.fromPromise;
 const fs$6 = fs$l;
-const path$a = require$$1;
+const path$b = require$$1;
 const mkdir = mkdirs$2;
 const pathExists$1 = pathExists_1.pathExists;
 
 async function outputFile$1 (file, data, encoding = 'utf-8') {
-  const dir = path$a.dirname(file);
+  const dir = path$b.dirname(file);
 
   if (!(await pathExists$1(dir))) {
     await mkdir.mkdirs(dir);
@@ -3760,7 +3760,7 @@ async function outputFile$1 (file, data, encoding = 'utf-8') {
 }
 
 function outputFileSync$1 (file, ...args) {
-  const dir = path$a.dirname(file);
+  const dir = path$b.dirname(file);
   if (!fs$6.existsSync(dir)) {
     mkdir.mkdirsSync(dir);
   }
@@ -3811,7 +3811,7 @@ jsonFile.readJSONSync = jsonFile.readJsonSync;
 var json = jsonFile;
 
 const fs$5 = fs$l;
-const path$9 = require$$1;
+const path$a = require$$1;
 const { copy } = copy$1;
 const { remove } = remove_1;
 const { mkdirp } = mkdirs$2;
@@ -3826,8 +3826,8 @@ async function move$1 (src, dest, opts = {}) {
   await stat$1.checkParentPaths(src, srcStat, dest, 'move');
 
   // If the parent of dest is not root, make sure it exists before proceeding
-  const destParent = path$9.dirname(dest);
-  const parsedParentPath = path$9.parse(destParent);
+  const destParent = path$a.dirname(dest);
+  const parsedParentPath = path$a.parse(destParent);
   if (parsedParentPath.root !== destParent) {
     await mkdirp(destParent);
   }
@@ -3869,7 +3869,7 @@ async function moveAcrossDevice$1 (src, dest, overwrite) {
 var move_1 = move$1;
 
 const fs$4 = gracefulFs;
-const path$8 = require$$1;
+const path$9 = require$$1;
 const copySync = copy$1.copySync;
 const removeSync = remove_1.removeSync;
 const mkdirpSync = mkdirs$2.mkdirpSync;
@@ -3881,13 +3881,13 @@ function moveSync (src, dest, opts) {
 
   const { srcStat, isChangingCase = false } = stat.checkPathsSync(src, dest, 'move', opts);
   stat.checkParentPathsSync(src, srcStat, dest, 'move');
-  if (!isParentRoot(dest)) mkdirpSync(path$8.dirname(dest));
+  if (!isParentRoot(dest)) mkdirpSync(path$9.dirname(dest));
   return doRename(src, dest, overwrite, isChangingCase)
 }
 
 function isParentRoot (dest) {
-  const parent = path$8.dirname(dest);
-  const parsedPath = path$8.parse(parent);
+  const parent = path$9.dirname(dest);
+  const parsedPath = path$9.parse(parent);
   return parsedPath.root === parent
 }
 
@@ -4683,164 +4683,147 @@ function requireBrowser () {
 
 var node$1 = {exports: {}};
 
-var hasFlag;
-var hasRequiredHasFlag;
+var hasFlag$1 = (flag, argv = process.argv) => {
+	const prefix = flag.startsWith('-') ? '' : (flag.length === 1 ? '-' : '--');
+	const position = argv.indexOf(prefix + flag);
+	const terminatorPosition = argv.indexOf('--');
+	return position !== -1 && (terminatorPosition === -1 || position < terminatorPosition);
+};
 
-function requireHasFlag () {
-	if (hasRequiredHasFlag) return hasFlag;
-	hasRequiredHasFlag = 1;
+const os = require$$0$5;
+const tty = require$$0$4;
+const hasFlag = hasFlag$1;
 
-	hasFlag = (flag, argv = process.argv) => {
-		const prefix = flag.startsWith('-') ? '' : (flag.length === 1 ? '-' : '--');
-		const position = argv.indexOf(prefix + flag);
-		const terminatorPosition = argv.indexOf('--');
-		return position !== -1 && (terminatorPosition === -1 || position < terminatorPosition);
-	};
-	return hasFlag;
+const {env: env$1} = process;
+
+let forceColor;
+if (hasFlag('no-color') ||
+	hasFlag('no-colors') ||
+	hasFlag('color=false') ||
+	hasFlag('color=never')) {
+	forceColor = 0;
+} else if (hasFlag('color') ||
+	hasFlag('colors') ||
+	hasFlag('color=true') ||
+	hasFlag('color=always')) {
+	forceColor = 1;
 }
 
-var supportsColor_1;
-var hasRequiredSupportsColor;
-
-function requireSupportsColor () {
-	if (hasRequiredSupportsColor) return supportsColor_1;
-	hasRequiredSupportsColor = 1;
-	const os = require$$0$5;
-	const tty = require$$0$4;
-	const hasFlag = requireHasFlag();
-
-	const {env} = process;
-
-	let forceColor;
-	if (hasFlag('no-color') ||
-		hasFlag('no-colors') ||
-		hasFlag('color=false') ||
-		hasFlag('color=never')) {
-		forceColor = 0;
-	} else if (hasFlag('color') ||
-		hasFlag('colors') ||
-		hasFlag('color=true') ||
-		hasFlag('color=always')) {
+if ('FORCE_COLOR' in env$1) {
+	if (env$1.FORCE_COLOR === 'true') {
 		forceColor = 1;
+	} else if (env$1.FORCE_COLOR === 'false') {
+		forceColor = 0;
+	} else {
+		forceColor = env$1.FORCE_COLOR.length === 0 ? 1 : Math.min(parseInt(env$1.FORCE_COLOR, 10), 3);
+	}
+}
+
+function translateLevel(level) {
+	if (level === 0) {
+		return false;
 	}
 
-	if ('FORCE_COLOR' in env) {
-		if (env.FORCE_COLOR === 'true') {
-			forceColor = 1;
-		} else if (env.FORCE_COLOR === 'false') {
-			forceColor = 0;
-		} else {
-			forceColor = env.FORCE_COLOR.length === 0 ? 1 : Math.min(parseInt(env.FORCE_COLOR, 10), 3);
-		}
+	return {
+		level,
+		hasBasic: true,
+		has256: level >= 2,
+		has16m: level >= 3
+	};
+}
+
+function supportsColor(haveStream, streamIsTTY) {
+	if (forceColor === 0) {
+		return 0;
 	}
 
-	function translateLevel(level) {
-		if (level === 0) {
-			return false;
-		}
-
-		return {
-			level,
-			hasBasic: true,
-			has256: level >= 2,
-			has16m: level >= 3
-		};
+	if (hasFlag('color=16m') ||
+		hasFlag('color=full') ||
+		hasFlag('color=truecolor')) {
+		return 3;
 	}
 
-	function supportsColor(haveStream, streamIsTTY) {
-		if (forceColor === 0) {
-			return 0;
+	if (hasFlag('color=256')) {
+		return 2;
+	}
+
+	if (haveStream && !streamIsTTY && forceColor === undefined) {
+		return 0;
+	}
+
+	const min = forceColor || 0;
+
+	if (env$1.TERM === 'dumb') {
+		return min;
+	}
+
+	if (process.platform === 'win32') {
+		// Windows 10 build 10586 is the first Windows release that supports 256 colors.
+		// Windows 10 build 14931 is the first release that supports 16m/TrueColor.
+		const osRelease = os.release().split('.');
+		if (
+			Number(osRelease[0]) >= 10 &&
+			Number(osRelease[2]) >= 10586
+		) {
+			return Number(osRelease[2]) >= 14931 ? 3 : 2;
 		}
 
-		if (hasFlag('color=16m') ||
-			hasFlag('color=full') ||
-			hasFlag('color=truecolor')) {
-			return 3;
-		}
+		return 1;
+	}
 
-		if (hasFlag('color=256')) {
-			return 2;
-		}
-
-		if (haveStream && !streamIsTTY && forceColor === undefined) {
-			return 0;
-		}
-
-		const min = forceColor || 0;
-
-		if (env.TERM === 'dumb') {
-			return min;
-		}
-
-		if (process.platform === 'win32') {
-			// Windows 10 build 10586 is the first Windows release that supports 256 colors.
-			// Windows 10 build 14931 is the first release that supports 16m/TrueColor.
-			const osRelease = os.release().split('.');
-			if (
-				Number(osRelease[0]) >= 10 &&
-				Number(osRelease[2]) >= 10586
-			) {
-				return Number(osRelease[2]) >= 14931 ? 3 : 2;
-			}
-
-			return 1;
-		}
-
-		if ('CI' in env) {
-			if (['TRAVIS', 'CIRCLECI', 'APPVEYOR', 'GITLAB_CI', 'GITHUB_ACTIONS', 'BUILDKITE'].some(sign => sign in env) || env.CI_NAME === 'codeship') {
-				return 1;
-			}
-
-			return min;
-		}
-
-		if ('TEAMCITY_VERSION' in env) {
-			return /^(9\.(0*[1-9]\d*)\.|\d{2,}\.)/.test(env.TEAMCITY_VERSION) ? 1 : 0;
-		}
-
-		if (env.COLORTERM === 'truecolor') {
-			return 3;
-		}
-
-		if ('TERM_PROGRAM' in env) {
-			const version = parseInt((env.TERM_PROGRAM_VERSION || '').split('.')[0], 10);
-
-			switch (env.TERM_PROGRAM) {
-				case 'iTerm.app':
-					return version >= 3 ? 3 : 2;
-				case 'Apple_Terminal':
-					return 2;
-				// No default
-			}
-		}
-
-		if (/-256(color)?$/i.test(env.TERM)) {
-			return 2;
-		}
-
-		if (/^screen|^xterm|^vt100|^vt220|^rxvt|color|ansi|cygwin|linux/i.test(env.TERM)) {
-			return 1;
-		}
-
-		if ('COLORTERM' in env) {
+	if ('CI' in env$1) {
+		if (['TRAVIS', 'CIRCLECI', 'APPVEYOR', 'GITLAB_CI', 'GITHUB_ACTIONS', 'BUILDKITE'].some(sign => sign in env$1) || env$1.CI_NAME === 'codeship') {
 			return 1;
 		}
 
 		return min;
 	}
 
-	function getSupportLevel(stream) {
-		const level = supportsColor(stream, stream && stream.isTTY);
-		return translateLevel(level);
+	if ('TEAMCITY_VERSION' in env$1) {
+		return /^(9\.(0*[1-9]\d*)\.|\d{2,}\.)/.test(env$1.TEAMCITY_VERSION) ? 1 : 0;
 	}
 
-	supportsColor_1 = {
-		supportsColor: getSupportLevel,
-		stdout: translateLevel(supportsColor(true, tty.isatty(1))),
-		stderr: translateLevel(supportsColor(true, tty.isatty(2)))
-	};
-	return supportsColor_1;
+	if (env$1.COLORTERM === 'truecolor') {
+		return 3;
+	}
+
+	if ('TERM_PROGRAM' in env$1) {
+		const version = parseInt((env$1.TERM_PROGRAM_VERSION || '').split('.')[0], 10);
+
+		switch (env$1.TERM_PROGRAM) {
+			case 'iTerm.app':
+				return version >= 3 ? 3 : 2;
+			case 'Apple_Terminal':
+				return 2;
+			// No default
+		}
+	}
+
+	if (/-256(color)?$/i.test(env$1.TERM)) {
+		return 2;
+	}
+
+	if (/^screen|^xterm|^vt100|^vt220|^rxvt|color|ansi|cygwin|linux/i.test(env$1.TERM)) {
+		return 1;
+	}
+
+	if ('COLORTERM' in env$1) {
+		return 1;
+	}
+
+	return min;
 }
+
+function getSupportLevel(stream) {
+	const level = supportsColor(stream, stream && stream.isTTY);
+	return translateLevel(level);
+}
+
+var supportsColor_1 = {
+	supportsColor: getSupportLevel,
+	stdout: translateLevel(supportsColor(true, tty.isatty(1))),
+	stderr: translateLevel(supportsColor(true, tty.isatty(2)))
+};
 
 /**
  * Module dependencies.
@@ -4853,7 +4836,7 @@ function requireNode () {
 	hasRequiredNode = 1;
 	(function (module, exports) {
 		const tty = require$$0$4;
-		const util = util$e;
+		const util = util$f;
 
 		/**
 		 * This is the Node.js implementation of `debug()`.
@@ -4879,7 +4862,7 @@ function requireNode () {
 		try {
 			// Optional dependency (as in, doesn't need to be installed, NOT like optionalDependencies in package.json)
 			// eslint-disable-next-line import/no-extraneous-dependencies
-			const supportsColor = requireSupportsColor();
+			const supportsColor = supportsColor_1;
 
 			if (supportsColor && (supportsColor.stderr || supportsColor).level >= 2) {
 				exports.colors = [
@@ -5129,6 +5112,1792 @@ if (typeof process === 'undefined' || process.type === 'renderer' || process.bro
 var srcExports = src.exports;
 var doDebug = /*@__PURE__*/getDefaultExportFromCjs(srcExports);
 
+var ansiStyles$1 = {exports: {}};
+
+var colorName;
+var hasRequiredColorName;
+
+function requireColorName () {
+	if (hasRequiredColorName) return colorName;
+	hasRequiredColorName = 1;
+
+	colorName = {
+		"aliceblue": [240, 248, 255],
+		"antiquewhite": [250, 235, 215],
+		"aqua": [0, 255, 255],
+		"aquamarine": [127, 255, 212],
+		"azure": [240, 255, 255],
+		"beige": [245, 245, 220],
+		"bisque": [255, 228, 196],
+		"black": [0, 0, 0],
+		"blanchedalmond": [255, 235, 205],
+		"blue": [0, 0, 255],
+		"blueviolet": [138, 43, 226],
+		"brown": [165, 42, 42],
+		"burlywood": [222, 184, 135],
+		"cadetblue": [95, 158, 160],
+		"chartreuse": [127, 255, 0],
+		"chocolate": [210, 105, 30],
+		"coral": [255, 127, 80],
+		"cornflowerblue": [100, 149, 237],
+		"cornsilk": [255, 248, 220],
+		"crimson": [220, 20, 60],
+		"cyan": [0, 255, 255],
+		"darkblue": [0, 0, 139],
+		"darkcyan": [0, 139, 139],
+		"darkgoldenrod": [184, 134, 11],
+		"darkgray": [169, 169, 169],
+		"darkgreen": [0, 100, 0],
+		"darkgrey": [169, 169, 169],
+		"darkkhaki": [189, 183, 107],
+		"darkmagenta": [139, 0, 139],
+		"darkolivegreen": [85, 107, 47],
+		"darkorange": [255, 140, 0],
+		"darkorchid": [153, 50, 204],
+		"darkred": [139, 0, 0],
+		"darksalmon": [233, 150, 122],
+		"darkseagreen": [143, 188, 143],
+		"darkslateblue": [72, 61, 139],
+		"darkslategray": [47, 79, 79],
+		"darkslategrey": [47, 79, 79],
+		"darkturquoise": [0, 206, 209],
+		"darkviolet": [148, 0, 211],
+		"deeppink": [255, 20, 147],
+		"deepskyblue": [0, 191, 255],
+		"dimgray": [105, 105, 105],
+		"dimgrey": [105, 105, 105],
+		"dodgerblue": [30, 144, 255],
+		"firebrick": [178, 34, 34],
+		"floralwhite": [255, 250, 240],
+		"forestgreen": [34, 139, 34],
+		"fuchsia": [255, 0, 255],
+		"gainsboro": [220, 220, 220],
+		"ghostwhite": [248, 248, 255],
+		"gold": [255, 215, 0],
+		"goldenrod": [218, 165, 32],
+		"gray": [128, 128, 128],
+		"green": [0, 128, 0],
+		"greenyellow": [173, 255, 47],
+		"grey": [128, 128, 128],
+		"honeydew": [240, 255, 240],
+		"hotpink": [255, 105, 180],
+		"indianred": [205, 92, 92],
+		"indigo": [75, 0, 130],
+		"ivory": [255, 255, 240],
+		"khaki": [240, 230, 140],
+		"lavender": [230, 230, 250],
+		"lavenderblush": [255, 240, 245],
+		"lawngreen": [124, 252, 0],
+		"lemonchiffon": [255, 250, 205],
+		"lightblue": [173, 216, 230],
+		"lightcoral": [240, 128, 128],
+		"lightcyan": [224, 255, 255],
+		"lightgoldenrodyellow": [250, 250, 210],
+		"lightgray": [211, 211, 211],
+		"lightgreen": [144, 238, 144],
+		"lightgrey": [211, 211, 211],
+		"lightpink": [255, 182, 193],
+		"lightsalmon": [255, 160, 122],
+		"lightseagreen": [32, 178, 170],
+		"lightskyblue": [135, 206, 250],
+		"lightslategray": [119, 136, 153],
+		"lightslategrey": [119, 136, 153],
+		"lightsteelblue": [176, 196, 222],
+		"lightyellow": [255, 255, 224],
+		"lime": [0, 255, 0],
+		"limegreen": [50, 205, 50],
+		"linen": [250, 240, 230],
+		"magenta": [255, 0, 255],
+		"maroon": [128, 0, 0],
+		"mediumaquamarine": [102, 205, 170],
+		"mediumblue": [0, 0, 205],
+		"mediumorchid": [186, 85, 211],
+		"mediumpurple": [147, 112, 219],
+		"mediumseagreen": [60, 179, 113],
+		"mediumslateblue": [123, 104, 238],
+		"mediumspringgreen": [0, 250, 154],
+		"mediumturquoise": [72, 209, 204],
+		"mediumvioletred": [199, 21, 133],
+		"midnightblue": [25, 25, 112],
+		"mintcream": [245, 255, 250],
+		"mistyrose": [255, 228, 225],
+		"moccasin": [255, 228, 181],
+		"navajowhite": [255, 222, 173],
+		"navy": [0, 0, 128],
+		"oldlace": [253, 245, 230],
+		"olive": [128, 128, 0],
+		"olivedrab": [107, 142, 35],
+		"orange": [255, 165, 0],
+		"orangered": [255, 69, 0],
+		"orchid": [218, 112, 214],
+		"palegoldenrod": [238, 232, 170],
+		"palegreen": [152, 251, 152],
+		"paleturquoise": [175, 238, 238],
+		"palevioletred": [219, 112, 147],
+		"papayawhip": [255, 239, 213],
+		"peachpuff": [255, 218, 185],
+		"peru": [205, 133, 63],
+		"pink": [255, 192, 203],
+		"plum": [221, 160, 221],
+		"powderblue": [176, 224, 230],
+		"purple": [128, 0, 128],
+		"rebeccapurple": [102, 51, 153],
+		"red": [255, 0, 0],
+		"rosybrown": [188, 143, 143],
+		"royalblue": [65, 105, 225],
+		"saddlebrown": [139, 69, 19],
+		"salmon": [250, 128, 114],
+		"sandybrown": [244, 164, 96],
+		"seagreen": [46, 139, 87],
+		"seashell": [255, 245, 238],
+		"sienna": [160, 82, 45],
+		"silver": [192, 192, 192],
+		"skyblue": [135, 206, 235],
+		"slateblue": [106, 90, 205],
+		"slategray": [112, 128, 144],
+		"slategrey": [112, 128, 144],
+		"snow": [255, 250, 250],
+		"springgreen": [0, 255, 127],
+		"steelblue": [70, 130, 180],
+		"tan": [210, 180, 140],
+		"teal": [0, 128, 128],
+		"thistle": [216, 191, 216],
+		"tomato": [255, 99, 71],
+		"turquoise": [64, 224, 208],
+		"violet": [238, 130, 238],
+		"wheat": [245, 222, 179],
+		"white": [255, 255, 255],
+		"whitesmoke": [245, 245, 245],
+		"yellow": [255, 255, 0],
+		"yellowgreen": [154, 205, 50]
+	};
+	return colorName;
+}
+
+/* MIT license */
+
+var conversions;
+var hasRequiredConversions;
+
+function requireConversions () {
+	if (hasRequiredConversions) return conversions;
+	hasRequiredConversions = 1;
+	/* eslint-disable no-mixed-operators */
+	const cssKeywords = requireColorName();
+
+	// NOTE: conversions should only return primitive values (i.e. arrays, or
+	//       values that give correct `typeof` results).
+	//       do not use box values types (i.e. Number(), String(), etc.)
+
+	const reverseKeywords = {};
+	for (const key of Object.keys(cssKeywords)) {
+		reverseKeywords[cssKeywords[key]] = key;
+	}
+
+	const convert = {
+		rgb: {channels: 3, labels: 'rgb'},
+		hsl: {channels: 3, labels: 'hsl'},
+		hsv: {channels: 3, labels: 'hsv'},
+		hwb: {channels: 3, labels: 'hwb'},
+		cmyk: {channels: 4, labels: 'cmyk'},
+		xyz: {channels: 3, labels: 'xyz'},
+		lab: {channels: 3, labels: 'lab'},
+		lch: {channels: 3, labels: 'lch'},
+		hex: {channels: 1, labels: ['hex']},
+		keyword: {channels: 1, labels: ['keyword']},
+		ansi16: {channels: 1, labels: ['ansi16']},
+		ansi256: {channels: 1, labels: ['ansi256']},
+		hcg: {channels: 3, labels: ['h', 'c', 'g']},
+		apple: {channels: 3, labels: ['r16', 'g16', 'b16']},
+		gray: {channels: 1, labels: ['gray']}
+	};
+
+	conversions = convert;
+
+	// Hide .channels and .labels properties
+	for (const model of Object.keys(convert)) {
+		if (!('channels' in convert[model])) {
+			throw new Error('missing channels property: ' + model);
+		}
+
+		if (!('labels' in convert[model])) {
+			throw new Error('missing channel labels property: ' + model);
+		}
+
+		if (convert[model].labels.length !== convert[model].channels) {
+			throw new Error('channel and label counts mismatch: ' + model);
+		}
+
+		const {channels, labels} = convert[model];
+		delete convert[model].channels;
+		delete convert[model].labels;
+		Object.defineProperty(convert[model], 'channels', {value: channels});
+		Object.defineProperty(convert[model], 'labels', {value: labels});
+	}
+
+	convert.rgb.hsl = function (rgb) {
+		const r = rgb[0] / 255;
+		const g = rgb[1] / 255;
+		const b = rgb[2] / 255;
+		const min = Math.min(r, g, b);
+		const max = Math.max(r, g, b);
+		const delta = max - min;
+		let h;
+		let s;
+
+		if (max === min) {
+			h = 0;
+		} else if (r === max) {
+			h = (g - b) / delta;
+		} else if (g === max) {
+			h = 2 + (b - r) / delta;
+		} else if (b === max) {
+			h = 4 + (r - g) / delta;
+		}
+
+		h = Math.min(h * 60, 360);
+
+		if (h < 0) {
+			h += 360;
+		}
+
+		const l = (min + max) / 2;
+
+		if (max === min) {
+			s = 0;
+		} else if (l <= 0.5) {
+			s = delta / (max + min);
+		} else {
+			s = delta / (2 - max - min);
+		}
+
+		return [h, s * 100, l * 100];
+	};
+
+	convert.rgb.hsv = function (rgb) {
+		let rdif;
+		let gdif;
+		let bdif;
+		let h;
+		let s;
+
+		const r = rgb[0] / 255;
+		const g = rgb[1] / 255;
+		const b = rgb[2] / 255;
+		const v = Math.max(r, g, b);
+		const diff = v - Math.min(r, g, b);
+		const diffc = function (c) {
+			return (v - c) / 6 / diff + 1 / 2;
+		};
+
+		if (diff === 0) {
+			h = 0;
+			s = 0;
+		} else {
+			s = diff / v;
+			rdif = diffc(r);
+			gdif = diffc(g);
+			bdif = diffc(b);
+
+			if (r === v) {
+				h = bdif - gdif;
+			} else if (g === v) {
+				h = (1 / 3) + rdif - bdif;
+			} else if (b === v) {
+				h = (2 / 3) + gdif - rdif;
+			}
+
+			if (h < 0) {
+				h += 1;
+			} else if (h > 1) {
+				h -= 1;
+			}
+		}
+
+		return [
+			h * 360,
+			s * 100,
+			v * 100
+		];
+	};
+
+	convert.rgb.hwb = function (rgb) {
+		const r = rgb[0];
+		const g = rgb[1];
+		let b = rgb[2];
+		const h = convert.rgb.hsl(rgb)[0];
+		const w = 1 / 255 * Math.min(r, Math.min(g, b));
+
+		b = 1 - 1 / 255 * Math.max(r, Math.max(g, b));
+
+		return [h, w * 100, b * 100];
+	};
+
+	convert.rgb.cmyk = function (rgb) {
+		const r = rgb[0] / 255;
+		const g = rgb[1] / 255;
+		const b = rgb[2] / 255;
+
+		const k = Math.min(1 - r, 1 - g, 1 - b);
+		const c = (1 - r - k) / (1 - k) || 0;
+		const m = (1 - g - k) / (1 - k) || 0;
+		const y = (1 - b - k) / (1 - k) || 0;
+
+		return [c * 100, m * 100, y * 100, k * 100];
+	};
+
+	function comparativeDistance(x, y) {
+		/*
+			See https://en.m.wikipedia.org/wiki/Euclidean_distance#Squared_Euclidean_distance
+		*/
+		return (
+			((x[0] - y[0]) ** 2) +
+			((x[1] - y[1]) ** 2) +
+			((x[2] - y[2]) ** 2)
+		);
+	}
+
+	convert.rgb.keyword = function (rgb) {
+		const reversed = reverseKeywords[rgb];
+		if (reversed) {
+			return reversed;
+		}
+
+		let currentClosestDistance = Infinity;
+		let currentClosestKeyword;
+
+		for (const keyword of Object.keys(cssKeywords)) {
+			const value = cssKeywords[keyword];
+
+			// Compute comparative distance
+			const distance = comparativeDistance(rgb, value);
+
+			// Check if its less, if so set as closest
+			if (distance < currentClosestDistance) {
+				currentClosestDistance = distance;
+				currentClosestKeyword = keyword;
+			}
+		}
+
+		return currentClosestKeyword;
+	};
+
+	convert.keyword.rgb = function (keyword) {
+		return cssKeywords[keyword];
+	};
+
+	convert.rgb.xyz = function (rgb) {
+		let r = rgb[0] / 255;
+		let g = rgb[1] / 255;
+		let b = rgb[2] / 255;
+
+		// Assume sRGB
+		r = r > 0.04045 ? (((r + 0.055) / 1.055) ** 2.4) : (r / 12.92);
+		g = g > 0.04045 ? (((g + 0.055) / 1.055) ** 2.4) : (g / 12.92);
+		b = b > 0.04045 ? (((b + 0.055) / 1.055) ** 2.4) : (b / 12.92);
+
+		const x = (r * 0.4124) + (g * 0.3576) + (b * 0.1805);
+		const y = (r * 0.2126) + (g * 0.7152) + (b * 0.0722);
+		const z = (r * 0.0193) + (g * 0.1192) + (b * 0.9505);
+
+		return [x * 100, y * 100, z * 100];
+	};
+
+	convert.rgb.lab = function (rgb) {
+		const xyz = convert.rgb.xyz(rgb);
+		let x = xyz[0];
+		let y = xyz[1];
+		let z = xyz[2];
+
+		x /= 95.047;
+		y /= 100;
+		z /= 108.883;
+
+		x = x > 0.008856 ? (x ** (1 / 3)) : (7.787 * x) + (16 / 116);
+		y = y > 0.008856 ? (y ** (1 / 3)) : (7.787 * y) + (16 / 116);
+		z = z > 0.008856 ? (z ** (1 / 3)) : (7.787 * z) + (16 / 116);
+
+		const l = (116 * y) - 16;
+		const a = 500 * (x - y);
+		const b = 200 * (y - z);
+
+		return [l, a, b];
+	};
+
+	convert.hsl.rgb = function (hsl) {
+		const h = hsl[0] / 360;
+		const s = hsl[1] / 100;
+		const l = hsl[2] / 100;
+		let t2;
+		let t3;
+		let val;
+
+		if (s === 0) {
+			val = l * 255;
+			return [val, val, val];
+		}
+
+		if (l < 0.5) {
+			t2 = l * (1 + s);
+		} else {
+			t2 = l + s - l * s;
+		}
+
+		const t1 = 2 * l - t2;
+
+		const rgb = [0, 0, 0];
+		for (let i = 0; i < 3; i++) {
+			t3 = h + 1 / 3 * -(i - 1);
+			if (t3 < 0) {
+				t3++;
+			}
+
+			if (t3 > 1) {
+				t3--;
+			}
+
+			if (6 * t3 < 1) {
+				val = t1 + (t2 - t1) * 6 * t3;
+			} else if (2 * t3 < 1) {
+				val = t2;
+			} else if (3 * t3 < 2) {
+				val = t1 + (t2 - t1) * (2 / 3 - t3) * 6;
+			} else {
+				val = t1;
+			}
+
+			rgb[i] = val * 255;
+		}
+
+		return rgb;
+	};
+
+	convert.hsl.hsv = function (hsl) {
+		const h = hsl[0];
+		let s = hsl[1] / 100;
+		let l = hsl[2] / 100;
+		let smin = s;
+		const lmin = Math.max(l, 0.01);
+
+		l *= 2;
+		s *= (l <= 1) ? l : 2 - l;
+		smin *= lmin <= 1 ? lmin : 2 - lmin;
+		const v = (l + s) / 2;
+		const sv = l === 0 ? (2 * smin) / (lmin + smin) : (2 * s) / (l + s);
+
+		return [h, sv * 100, v * 100];
+	};
+
+	convert.hsv.rgb = function (hsv) {
+		const h = hsv[0] / 60;
+		const s = hsv[1] / 100;
+		let v = hsv[2] / 100;
+		const hi = Math.floor(h) % 6;
+
+		const f = h - Math.floor(h);
+		const p = 255 * v * (1 - s);
+		const q = 255 * v * (1 - (s * f));
+		const t = 255 * v * (1 - (s * (1 - f)));
+		v *= 255;
+
+		switch (hi) {
+			case 0:
+				return [v, t, p];
+			case 1:
+				return [q, v, p];
+			case 2:
+				return [p, v, t];
+			case 3:
+				return [p, q, v];
+			case 4:
+				return [t, p, v];
+			case 5:
+				return [v, p, q];
+		}
+	};
+
+	convert.hsv.hsl = function (hsv) {
+		const h = hsv[0];
+		const s = hsv[1] / 100;
+		const v = hsv[2] / 100;
+		const vmin = Math.max(v, 0.01);
+		let sl;
+		let l;
+
+		l = (2 - s) * v;
+		const lmin = (2 - s) * vmin;
+		sl = s * vmin;
+		sl /= (lmin <= 1) ? lmin : 2 - lmin;
+		sl = sl || 0;
+		l /= 2;
+
+		return [h, sl * 100, l * 100];
+	};
+
+	// http://dev.w3.org/csswg/css-color/#hwb-to-rgb
+	convert.hwb.rgb = function (hwb) {
+		const h = hwb[0] / 360;
+		let wh = hwb[1] / 100;
+		let bl = hwb[2] / 100;
+		const ratio = wh + bl;
+		let f;
+
+		// Wh + bl cant be > 1
+		if (ratio > 1) {
+			wh /= ratio;
+			bl /= ratio;
+		}
+
+		const i = Math.floor(6 * h);
+		const v = 1 - bl;
+		f = 6 * h - i;
+
+		if ((i & 0x01) !== 0) {
+			f = 1 - f;
+		}
+
+		const n = wh + f * (v - wh); // Linear interpolation
+
+		let r;
+		let g;
+		let b;
+		/* eslint-disable max-statements-per-line,no-multi-spaces */
+		switch (i) {
+			default:
+			case 6:
+			case 0: r = v;  g = n;  b = wh; break;
+			case 1: r = n;  g = v;  b = wh; break;
+			case 2: r = wh; g = v;  b = n; break;
+			case 3: r = wh; g = n;  b = v; break;
+			case 4: r = n;  g = wh; b = v; break;
+			case 5: r = v;  g = wh; b = n; break;
+		}
+		/* eslint-enable max-statements-per-line,no-multi-spaces */
+
+		return [r * 255, g * 255, b * 255];
+	};
+
+	convert.cmyk.rgb = function (cmyk) {
+		const c = cmyk[0] / 100;
+		const m = cmyk[1] / 100;
+		const y = cmyk[2] / 100;
+		const k = cmyk[3] / 100;
+
+		const r = 1 - Math.min(1, c * (1 - k) + k);
+		const g = 1 - Math.min(1, m * (1 - k) + k);
+		const b = 1 - Math.min(1, y * (1 - k) + k);
+
+		return [r * 255, g * 255, b * 255];
+	};
+
+	convert.xyz.rgb = function (xyz) {
+		const x = xyz[0] / 100;
+		const y = xyz[1] / 100;
+		const z = xyz[2] / 100;
+		let r;
+		let g;
+		let b;
+
+		r = (x * 3.2406) + (y * -1.5372) + (z * -0.4986);
+		g = (x * -0.9689) + (y * 1.8758) + (z * 0.0415);
+		b = (x * 0.0557) + (y * -0.2040) + (z * 1.0570);
+
+		// Assume sRGB
+		r = r > 0.0031308
+			? ((1.055 * (r ** (1.0 / 2.4))) - 0.055)
+			: r * 12.92;
+
+		g = g > 0.0031308
+			? ((1.055 * (g ** (1.0 / 2.4))) - 0.055)
+			: g * 12.92;
+
+		b = b > 0.0031308
+			? ((1.055 * (b ** (1.0 / 2.4))) - 0.055)
+			: b * 12.92;
+
+		r = Math.min(Math.max(0, r), 1);
+		g = Math.min(Math.max(0, g), 1);
+		b = Math.min(Math.max(0, b), 1);
+
+		return [r * 255, g * 255, b * 255];
+	};
+
+	convert.xyz.lab = function (xyz) {
+		let x = xyz[0];
+		let y = xyz[1];
+		let z = xyz[2];
+
+		x /= 95.047;
+		y /= 100;
+		z /= 108.883;
+
+		x = x > 0.008856 ? (x ** (1 / 3)) : (7.787 * x) + (16 / 116);
+		y = y > 0.008856 ? (y ** (1 / 3)) : (7.787 * y) + (16 / 116);
+		z = z > 0.008856 ? (z ** (1 / 3)) : (7.787 * z) + (16 / 116);
+
+		const l = (116 * y) - 16;
+		const a = 500 * (x - y);
+		const b = 200 * (y - z);
+
+		return [l, a, b];
+	};
+
+	convert.lab.xyz = function (lab) {
+		const l = lab[0];
+		const a = lab[1];
+		const b = lab[2];
+		let x;
+		let y;
+		let z;
+
+		y = (l + 16) / 116;
+		x = a / 500 + y;
+		z = y - b / 200;
+
+		const y2 = y ** 3;
+		const x2 = x ** 3;
+		const z2 = z ** 3;
+		y = y2 > 0.008856 ? y2 : (y - 16 / 116) / 7.787;
+		x = x2 > 0.008856 ? x2 : (x - 16 / 116) / 7.787;
+		z = z2 > 0.008856 ? z2 : (z - 16 / 116) / 7.787;
+
+		x *= 95.047;
+		y *= 100;
+		z *= 108.883;
+
+		return [x, y, z];
+	};
+
+	convert.lab.lch = function (lab) {
+		const l = lab[0];
+		const a = lab[1];
+		const b = lab[2];
+		let h;
+
+		const hr = Math.atan2(b, a);
+		h = hr * 360 / 2 / Math.PI;
+
+		if (h < 0) {
+			h += 360;
+		}
+
+		const c = Math.sqrt(a * a + b * b);
+
+		return [l, c, h];
+	};
+
+	convert.lch.lab = function (lch) {
+		const l = lch[0];
+		const c = lch[1];
+		const h = lch[2];
+
+		const hr = h / 360 * 2 * Math.PI;
+		const a = c * Math.cos(hr);
+		const b = c * Math.sin(hr);
+
+		return [l, a, b];
+	};
+
+	convert.rgb.ansi16 = function (args, saturation = null) {
+		const [r, g, b] = args;
+		let value = saturation === null ? convert.rgb.hsv(args)[2] : saturation; // Hsv -> ansi16 optimization
+
+		value = Math.round(value / 50);
+
+		if (value === 0) {
+			return 30;
+		}
+
+		let ansi = 30
+			+ ((Math.round(b / 255) << 2)
+			| (Math.round(g / 255) << 1)
+			| Math.round(r / 255));
+
+		if (value === 2) {
+			ansi += 60;
+		}
+
+		return ansi;
+	};
+
+	convert.hsv.ansi16 = function (args) {
+		// Optimization here; we already know the value and don't need to get
+		// it converted for us.
+		return convert.rgb.ansi16(convert.hsv.rgb(args), args[2]);
+	};
+
+	convert.rgb.ansi256 = function (args) {
+		const r = args[0];
+		const g = args[1];
+		const b = args[2];
+
+		// We use the extended greyscale palette here, with the exception of
+		// black and white. normal palette only has 4 greyscale shades.
+		if (r === g && g === b) {
+			if (r < 8) {
+				return 16;
+			}
+
+			if (r > 248) {
+				return 231;
+			}
+
+			return Math.round(((r - 8) / 247) * 24) + 232;
+		}
+
+		const ansi = 16
+			+ (36 * Math.round(r / 255 * 5))
+			+ (6 * Math.round(g / 255 * 5))
+			+ Math.round(b / 255 * 5);
+
+		return ansi;
+	};
+
+	convert.ansi16.rgb = function (args) {
+		let color = args % 10;
+
+		// Handle greyscale
+		if (color === 0 || color === 7) {
+			if (args > 50) {
+				color += 3.5;
+			}
+
+			color = color / 10.5 * 255;
+
+			return [color, color, color];
+		}
+
+		const mult = (~~(args > 50) + 1) * 0.5;
+		const r = ((color & 1) * mult) * 255;
+		const g = (((color >> 1) & 1) * mult) * 255;
+		const b = (((color >> 2) & 1) * mult) * 255;
+
+		return [r, g, b];
+	};
+
+	convert.ansi256.rgb = function (args) {
+		// Handle greyscale
+		if (args >= 232) {
+			const c = (args - 232) * 10 + 8;
+			return [c, c, c];
+		}
+
+		args -= 16;
+
+		let rem;
+		const r = Math.floor(args / 36) / 5 * 255;
+		const g = Math.floor((rem = args % 36) / 6) / 5 * 255;
+		const b = (rem % 6) / 5 * 255;
+
+		return [r, g, b];
+	};
+
+	convert.rgb.hex = function (args) {
+		const integer = ((Math.round(args[0]) & 0xFF) << 16)
+			+ ((Math.round(args[1]) & 0xFF) << 8)
+			+ (Math.round(args[2]) & 0xFF);
+
+		const string = integer.toString(16).toUpperCase();
+		return '000000'.substring(string.length) + string;
+	};
+
+	convert.hex.rgb = function (args) {
+		const match = args.toString(16).match(/[a-f0-9]{6}|[a-f0-9]{3}/i);
+		if (!match) {
+			return [0, 0, 0];
+		}
+
+		let colorString = match[0];
+
+		if (match[0].length === 3) {
+			colorString = colorString.split('').map(char => {
+				return char + char;
+			}).join('');
+		}
+
+		const integer = parseInt(colorString, 16);
+		const r = (integer >> 16) & 0xFF;
+		const g = (integer >> 8) & 0xFF;
+		const b = integer & 0xFF;
+
+		return [r, g, b];
+	};
+
+	convert.rgb.hcg = function (rgb) {
+		const r = rgb[0] / 255;
+		const g = rgb[1] / 255;
+		const b = rgb[2] / 255;
+		const max = Math.max(Math.max(r, g), b);
+		const min = Math.min(Math.min(r, g), b);
+		const chroma = (max - min);
+		let grayscale;
+		let hue;
+
+		if (chroma < 1) {
+			grayscale = min / (1 - chroma);
+		} else {
+			grayscale = 0;
+		}
+
+		if (chroma <= 0) {
+			hue = 0;
+		} else
+		if (max === r) {
+			hue = ((g - b) / chroma) % 6;
+		} else
+		if (max === g) {
+			hue = 2 + (b - r) / chroma;
+		} else {
+			hue = 4 + (r - g) / chroma;
+		}
+
+		hue /= 6;
+		hue %= 1;
+
+		return [hue * 360, chroma * 100, grayscale * 100];
+	};
+
+	convert.hsl.hcg = function (hsl) {
+		const s = hsl[1] / 100;
+		const l = hsl[2] / 100;
+
+		const c = l < 0.5 ? (2.0 * s * l) : (2.0 * s * (1.0 - l));
+
+		let f = 0;
+		if (c < 1.0) {
+			f = (l - 0.5 * c) / (1.0 - c);
+		}
+
+		return [hsl[0], c * 100, f * 100];
+	};
+
+	convert.hsv.hcg = function (hsv) {
+		const s = hsv[1] / 100;
+		const v = hsv[2] / 100;
+
+		const c = s * v;
+		let f = 0;
+
+		if (c < 1.0) {
+			f = (v - c) / (1 - c);
+		}
+
+		return [hsv[0], c * 100, f * 100];
+	};
+
+	convert.hcg.rgb = function (hcg) {
+		const h = hcg[0] / 360;
+		const c = hcg[1] / 100;
+		const g = hcg[2] / 100;
+
+		if (c === 0.0) {
+			return [g * 255, g * 255, g * 255];
+		}
+
+		const pure = [0, 0, 0];
+		const hi = (h % 1) * 6;
+		const v = hi % 1;
+		const w = 1 - v;
+		let mg = 0;
+
+		/* eslint-disable max-statements-per-line */
+		switch (Math.floor(hi)) {
+			case 0:
+				pure[0] = 1; pure[1] = v; pure[2] = 0; break;
+			case 1:
+				pure[0] = w; pure[1] = 1; pure[2] = 0; break;
+			case 2:
+				pure[0] = 0; pure[1] = 1; pure[2] = v; break;
+			case 3:
+				pure[0] = 0; pure[1] = w; pure[2] = 1; break;
+			case 4:
+				pure[0] = v; pure[1] = 0; pure[2] = 1; break;
+			default:
+				pure[0] = 1; pure[1] = 0; pure[2] = w;
+		}
+		/* eslint-enable max-statements-per-line */
+
+		mg = (1.0 - c) * g;
+
+		return [
+			(c * pure[0] + mg) * 255,
+			(c * pure[1] + mg) * 255,
+			(c * pure[2] + mg) * 255
+		];
+	};
+
+	convert.hcg.hsv = function (hcg) {
+		const c = hcg[1] / 100;
+		const g = hcg[2] / 100;
+
+		const v = c + g * (1.0 - c);
+		let f = 0;
+
+		if (v > 0.0) {
+			f = c / v;
+		}
+
+		return [hcg[0], f * 100, v * 100];
+	};
+
+	convert.hcg.hsl = function (hcg) {
+		const c = hcg[1] / 100;
+		const g = hcg[2] / 100;
+
+		const l = g * (1.0 - c) + 0.5 * c;
+		let s = 0;
+
+		if (l > 0.0 && l < 0.5) {
+			s = c / (2 * l);
+		} else
+		if (l >= 0.5 && l < 1.0) {
+			s = c / (2 * (1 - l));
+		}
+
+		return [hcg[0], s * 100, l * 100];
+	};
+
+	convert.hcg.hwb = function (hcg) {
+		const c = hcg[1] / 100;
+		const g = hcg[2] / 100;
+		const v = c + g * (1.0 - c);
+		return [hcg[0], (v - c) * 100, (1 - v) * 100];
+	};
+
+	convert.hwb.hcg = function (hwb) {
+		const w = hwb[1] / 100;
+		const b = hwb[2] / 100;
+		const v = 1 - b;
+		const c = v - w;
+		let g = 0;
+
+		if (c < 1) {
+			g = (v - c) / (1 - c);
+		}
+
+		return [hwb[0], c * 100, g * 100];
+	};
+
+	convert.apple.rgb = function (apple) {
+		return [(apple[0] / 65535) * 255, (apple[1] / 65535) * 255, (apple[2] / 65535) * 255];
+	};
+
+	convert.rgb.apple = function (rgb) {
+		return [(rgb[0] / 255) * 65535, (rgb[1] / 255) * 65535, (rgb[2] / 255) * 65535];
+	};
+
+	convert.gray.rgb = function (args) {
+		return [args[0] / 100 * 255, args[0] / 100 * 255, args[0] / 100 * 255];
+	};
+
+	convert.gray.hsl = function (args) {
+		return [0, 0, args[0]];
+	};
+
+	convert.gray.hsv = convert.gray.hsl;
+
+	convert.gray.hwb = function (gray) {
+		return [0, 100, gray[0]];
+	};
+
+	convert.gray.cmyk = function (gray) {
+		return [0, 0, 0, gray[0]];
+	};
+
+	convert.gray.lab = function (gray) {
+		return [gray[0], 0, 0];
+	};
+
+	convert.gray.hex = function (gray) {
+		const val = Math.round(gray[0] / 100 * 255) & 0xFF;
+		const integer = (val << 16) + (val << 8) + val;
+
+		const string = integer.toString(16).toUpperCase();
+		return '000000'.substring(string.length) + string;
+	};
+
+	convert.rgb.gray = function (rgb) {
+		const val = (rgb[0] + rgb[1] + rgb[2]) / 3;
+		return [val / 255 * 100];
+	};
+	return conversions;
+}
+
+var route;
+var hasRequiredRoute;
+
+function requireRoute () {
+	if (hasRequiredRoute) return route;
+	hasRequiredRoute = 1;
+	const conversions = requireConversions();
+
+	/*
+		This function routes a model to all other models.
+
+		all functions that are routed have a property `.conversion` attached
+		to the returned synthetic function. This property is an array
+		of strings, each with the steps in between the 'from' and 'to'
+		color models (inclusive).
+
+		conversions that are not possible simply are not included.
+	*/
+
+	function buildGraph() {
+		const graph = {};
+		// https://jsperf.com/object-keys-vs-for-in-with-closure/3
+		const models = Object.keys(conversions);
+
+		for (let len = models.length, i = 0; i < len; i++) {
+			graph[models[i]] = {
+				// http://jsperf.com/1-vs-infinity
+				// micro-opt, but this is simple.
+				distance: -1,
+				parent: null
+			};
+		}
+
+		return graph;
+	}
+
+	// https://en.wikipedia.org/wiki/Breadth-first_search
+	function deriveBFS(fromModel) {
+		const graph = buildGraph();
+		const queue = [fromModel]; // Unshift -> queue -> pop
+
+		graph[fromModel].distance = 0;
+
+		while (queue.length) {
+			const current = queue.pop();
+			const adjacents = Object.keys(conversions[current]);
+
+			for (let len = adjacents.length, i = 0; i < len; i++) {
+				const adjacent = adjacents[i];
+				const node = graph[adjacent];
+
+				if (node.distance === -1) {
+					node.distance = graph[current].distance + 1;
+					node.parent = current;
+					queue.unshift(adjacent);
+				}
+			}
+		}
+
+		return graph;
+	}
+
+	function link(from, to) {
+		return function (args) {
+			return to(from(args));
+		};
+	}
+
+	function wrapConversion(toModel, graph) {
+		const path = [graph[toModel].parent, toModel];
+		let fn = conversions[graph[toModel].parent][toModel];
+
+		let cur = graph[toModel].parent;
+		while (graph[cur].parent) {
+			path.unshift(graph[cur].parent);
+			fn = link(conversions[graph[cur].parent][cur], fn);
+			cur = graph[cur].parent;
+		}
+
+		fn.conversion = path;
+		return fn;
+	}
+
+	route = function (fromModel) {
+		const graph = deriveBFS(fromModel);
+		const conversion = {};
+
+		const models = Object.keys(graph);
+		for (let len = models.length, i = 0; i < len; i++) {
+			const toModel = models[i];
+			const node = graph[toModel];
+
+			if (node.parent === null) {
+				// No possible conversion, or this node is the source model.
+				continue;
+			}
+
+			conversion[toModel] = wrapConversion(toModel, graph);
+		}
+
+		return conversion;
+	};
+	return route;
+}
+
+var colorConvert;
+var hasRequiredColorConvert;
+
+function requireColorConvert () {
+	if (hasRequiredColorConvert) return colorConvert;
+	hasRequiredColorConvert = 1;
+	const conversions = requireConversions();
+	const route = requireRoute();
+
+	const convert = {};
+
+	const models = Object.keys(conversions);
+
+	function wrapRaw(fn) {
+		const wrappedFn = function (...args) {
+			const arg0 = args[0];
+			if (arg0 === undefined || arg0 === null) {
+				return arg0;
+			}
+
+			if (arg0.length > 1) {
+				args = arg0;
+			}
+
+			return fn(args);
+		};
+
+		// Preserve .conversion property if there is one
+		if ('conversion' in fn) {
+			wrappedFn.conversion = fn.conversion;
+		}
+
+		return wrappedFn;
+	}
+
+	function wrapRounded(fn) {
+		const wrappedFn = function (...args) {
+			const arg0 = args[0];
+
+			if (arg0 === undefined || arg0 === null) {
+				return arg0;
+			}
+
+			if (arg0.length > 1) {
+				args = arg0;
+			}
+
+			const result = fn(args);
+
+			// We're assuming the result is an array here.
+			// see notice in conversions.js; don't use box types
+			// in conversion functions.
+			if (typeof result === 'object') {
+				for (let len = result.length, i = 0; i < len; i++) {
+					result[i] = Math.round(result[i]);
+				}
+			}
+
+			return result;
+		};
+
+		// Preserve .conversion property if there is one
+		if ('conversion' in fn) {
+			wrappedFn.conversion = fn.conversion;
+		}
+
+		return wrappedFn;
+	}
+
+	models.forEach(fromModel => {
+		convert[fromModel] = {};
+
+		Object.defineProperty(convert[fromModel], 'channels', {value: conversions[fromModel].channels});
+		Object.defineProperty(convert[fromModel], 'labels', {value: conversions[fromModel].labels});
+
+		const routes = route(fromModel);
+		const routeModels = Object.keys(routes);
+
+		routeModels.forEach(toModel => {
+			const fn = routes[toModel];
+
+			convert[fromModel][toModel] = wrapRounded(fn);
+			convert[fromModel][toModel].raw = wrapRaw(fn);
+		});
+	});
+
+	colorConvert = convert;
+	return colorConvert;
+}
+
+ansiStyles$1.exports;
+
+(function (module) {
+
+	const wrapAnsi16 = (fn, offset) => (...args) => {
+		const code = fn(...args);
+		return `\u001B[${code + offset}m`;
+	};
+
+	const wrapAnsi256 = (fn, offset) => (...args) => {
+		const code = fn(...args);
+		return `\u001B[${38 + offset};5;${code}m`;
+	};
+
+	const wrapAnsi16m = (fn, offset) => (...args) => {
+		const rgb = fn(...args);
+		return `\u001B[${38 + offset};2;${rgb[0]};${rgb[1]};${rgb[2]}m`;
+	};
+
+	const ansi2ansi = n => n;
+	const rgb2rgb = (r, g, b) => [r, g, b];
+
+	const setLazyProperty = (object, property, get) => {
+		Object.defineProperty(object, property, {
+			get: () => {
+				const value = get();
+
+				Object.defineProperty(object, property, {
+					value,
+					enumerable: true,
+					configurable: true
+				});
+
+				return value;
+			},
+			enumerable: true,
+			configurable: true
+		});
+	};
+
+	/** @type {typeof import('color-convert')} */
+	let colorConvert;
+	const makeDynamicStyles = (wrap, targetSpace, identity, isBackground) => {
+		if (colorConvert === undefined) {
+			colorConvert = requireColorConvert();
+		}
+
+		const offset = isBackground ? 10 : 0;
+		const styles = {};
+
+		for (const [sourceSpace, suite] of Object.entries(colorConvert)) {
+			const name = sourceSpace === 'ansi16' ? 'ansi' : sourceSpace;
+			if (sourceSpace === targetSpace) {
+				styles[name] = wrap(identity, offset);
+			} else if (typeof suite === 'object') {
+				styles[name] = wrap(suite[targetSpace], offset);
+			}
+		}
+
+		return styles;
+	};
+
+	function assembleStyles() {
+		const codes = new Map();
+		const styles = {
+			modifier: {
+				reset: [0, 0],
+				// 21 isn't widely supported and 22 does the same thing
+				bold: [1, 22],
+				dim: [2, 22],
+				italic: [3, 23],
+				underline: [4, 24],
+				inverse: [7, 27],
+				hidden: [8, 28],
+				strikethrough: [9, 29]
+			},
+			color: {
+				black: [30, 39],
+				red: [31, 39],
+				green: [32, 39],
+				yellow: [33, 39],
+				blue: [34, 39],
+				magenta: [35, 39],
+				cyan: [36, 39],
+				white: [37, 39],
+
+				// Bright color
+				blackBright: [90, 39],
+				redBright: [91, 39],
+				greenBright: [92, 39],
+				yellowBright: [93, 39],
+				blueBright: [94, 39],
+				magentaBright: [95, 39],
+				cyanBright: [96, 39],
+				whiteBright: [97, 39]
+			},
+			bgColor: {
+				bgBlack: [40, 49],
+				bgRed: [41, 49],
+				bgGreen: [42, 49],
+				bgYellow: [43, 49],
+				bgBlue: [44, 49],
+				bgMagenta: [45, 49],
+				bgCyan: [46, 49],
+				bgWhite: [47, 49],
+
+				// Bright color
+				bgBlackBright: [100, 49],
+				bgRedBright: [101, 49],
+				bgGreenBright: [102, 49],
+				bgYellowBright: [103, 49],
+				bgBlueBright: [104, 49],
+				bgMagentaBright: [105, 49],
+				bgCyanBright: [106, 49],
+				bgWhiteBright: [107, 49]
+			}
+		};
+
+		// Alias bright black as gray (and grey)
+		styles.color.gray = styles.color.blackBright;
+		styles.bgColor.bgGray = styles.bgColor.bgBlackBright;
+		styles.color.grey = styles.color.blackBright;
+		styles.bgColor.bgGrey = styles.bgColor.bgBlackBright;
+
+		for (const [groupName, group] of Object.entries(styles)) {
+			for (const [styleName, style] of Object.entries(group)) {
+				styles[styleName] = {
+					open: `\u001B[${style[0]}m`,
+					close: `\u001B[${style[1]}m`
+				};
+
+				group[styleName] = styles[styleName];
+
+				codes.set(style[0], style[1]);
+			}
+
+			Object.defineProperty(styles, groupName, {
+				value: group,
+				enumerable: false
+			});
+		}
+
+		Object.defineProperty(styles, 'codes', {
+			value: codes,
+			enumerable: false
+		});
+
+		styles.color.close = '\u001B[39m';
+		styles.bgColor.close = '\u001B[49m';
+
+		setLazyProperty(styles.color, 'ansi', () => makeDynamicStyles(wrapAnsi16, 'ansi16', ansi2ansi, false));
+		setLazyProperty(styles.color, 'ansi256', () => makeDynamicStyles(wrapAnsi256, 'ansi256', ansi2ansi, false));
+		setLazyProperty(styles.color, 'ansi16m', () => makeDynamicStyles(wrapAnsi16m, 'rgb', rgb2rgb, false));
+		setLazyProperty(styles.bgColor, 'ansi', () => makeDynamicStyles(wrapAnsi16, 'ansi16', ansi2ansi, true));
+		setLazyProperty(styles.bgColor, 'ansi256', () => makeDynamicStyles(wrapAnsi256, 'ansi256', ansi2ansi, true));
+		setLazyProperty(styles.bgColor, 'ansi16m', () => makeDynamicStyles(wrapAnsi16m, 'rgb', rgb2rgb, true));
+
+		return styles;
+	}
+
+	// Make the export immutable
+	Object.defineProperty(module, 'exports', {
+		enumerable: true,
+		get: assembleStyles
+	}); 
+} (ansiStyles$1));
+
+var ansiStylesExports = ansiStyles$1.exports;
+
+const stringReplaceAll$1 = (string, substring, replacer) => {
+	let index = string.indexOf(substring);
+	if (index === -1) {
+		return string;
+	}
+
+	const substringLength = substring.length;
+	let endIndex = 0;
+	let returnValue = '';
+	do {
+		returnValue += string.substr(endIndex, index - endIndex) + substring + replacer;
+		endIndex = index + substringLength;
+		index = string.indexOf(substring, endIndex);
+	} while (index !== -1);
+
+	returnValue += string.substr(endIndex);
+	return returnValue;
+};
+
+const stringEncaseCRLFWithFirstIndex$1 = (string, prefix, postfix, index) => {
+	let endIndex = 0;
+	let returnValue = '';
+	do {
+		const gotCR = string[index - 1] === '\r';
+		returnValue += string.substr(endIndex, (gotCR ? index - 1 : index) - endIndex) + prefix + (gotCR ? '\r\n' : '\n') + postfix;
+		endIndex = index + 1;
+		index = string.indexOf('\n', endIndex);
+	} while (index !== -1);
+
+	returnValue += string.substr(endIndex);
+	return returnValue;
+};
+
+var util$d = {
+	stringReplaceAll: stringReplaceAll$1,
+	stringEncaseCRLFWithFirstIndex: stringEncaseCRLFWithFirstIndex$1
+};
+
+var templates;
+var hasRequiredTemplates;
+
+function requireTemplates () {
+	if (hasRequiredTemplates) return templates;
+	hasRequiredTemplates = 1;
+	const TEMPLATE_REGEX = /(?:\\(u(?:[a-f\d]{4}|\{[a-f\d]{1,6}\})|x[a-f\d]{2}|.))|(?:\{(~)?(\w+(?:\([^)]*\))?(?:\.\w+(?:\([^)]*\))?)*)(?:[ \t]|(?=\r?\n)))|(\})|((?:.|[\r\n\f])+?)/gi;
+	const STYLE_REGEX = /(?:^|\.)(\w+)(?:\(([^)]*)\))?/g;
+	const STRING_REGEX = /^(['"])((?:\\.|(?!\1)[^\\])*)\1$/;
+	const ESCAPE_REGEX = /\\(u(?:[a-f\d]{4}|{[a-f\d]{1,6}})|x[a-f\d]{2}|.)|([^\\])/gi;
+
+	const ESCAPES = new Map([
+		['n', '\n'],
+		['r', '\r'],
+		['t', '\t'],
+		['b', '\b'],
+		['f', '\f'],
+		['v', '\v'],
+		['0', '\0'],
+		['\\', '\\'],
+		['e', '\u001B'],
+		['a', '\u0007']
+	]);
+
+	function unescape(c) {
+		const u = c[0] === 'u';
+		const bracket = c[1] === '{';
+
+		if ((u && !bracket && c.length === 5) || (c[0] === 'x' && c.length === 3)) {
+			return String.fromCharCode(parseInt(c.slice(1), 16));
+		}
+
+		if (u && bracket) {
+			return String.fromCodePoint(parseInt(c.slice(2, -1), 16));
+		}
+
+		return ESCAPES.get(c) || c;
+	}
+
+	function parseArguments(name, arguments_) {
+		const results = [];
+		const chunks = arguments_.trim().split(/\s*,\s*/g);
+		let matches;
+
+		for (const chunk of chunks) {
+			const number = Number(chunk);
+			if (!Number.isNaN(number)) {
+				results.push(number);
+			} else if ((matches = chunk.match(STRING_REGEX))) {
+				results.push(matches[2].replace(ESCAPE_REGEX, (m, escape, character) => escape ? unescape(escape) : character));
+			} else {
+				throw new Error(`Invalid Chalk template style argument: ${chunk} (in style '${name}')`);
+			}
+		}
+
+		return results;
+	}
+
+	function parseStyle(style) {
+		STYLE_REGEX.lastIndex = 0;
+
+		const results = [];
+		let matches;
+
+		while ((matches = STYLE_REGEX.exec(style)) !== null) {
+			const name = matches[1];
+
+			if (matches[2]) {
+				const args = parseArguments(name, matches[2]);
+				results.push([name].concat(args));
+			} else {
+				results.push([name]);
+			}
+		}
+
+		return results;
+	}
+
+	function buildStyle(chalk, styles) {
+		const enabled = {};
+
+		for (const layer of styles) {
+			for (const style of layer.styles) {
+				enabled[style[0]] = layer.inverse ? null : style.slice(1);
+			}
+		}
+
+		let current = chalk;
+		for (const [styleName, styles] of Object.entries(enabled)) {
+			if (!Array.isArray(styles)) {
+				continue;
+			}
+
+			if (!(styleName in current)) {
+				throw new Error(`Unknown Chalk style: ${styleName}`);
+			}
+
+			current = styles.length > 0 ? current[styleName](...styles) : current[styleName];
+		}
+
+		return current;
+	}
+
+	templates = (chalk, temporary) => {
+		const styles = [];
+		const chunks = [];
+		let chunk = [];
+
+		// eslint-disable-next-line max-params
+		temporary.replace(TEMPLATE_REGEX, (m, escapeCharacter, inverse, style, close, character) => {
+			if (escapeCharacter) {
+				chunk.push(unescape(escapeCharacter));
+			} else if (style) {
+				const string = chunk.join('');
+				chunk = [];
+				chunks.push(styles.length === 0 ? string : buildStyle(chalk, styles)(string));
+				styles.push({inverse, styles: parseStyle(style)});
+			} else if (close) {
+				if (styles.length === 0) {
+					throw new Error('Found extraneous } in Chalk template literal');
+				}
+
+				chunks.push(buildStyle(chalk, styles)(chunk.join('')));
+				chunk = [];
+				styles.pop();
+			} else {
+				chunk.push(character);
+			}
+		});
+
+		chunks.push(chunk.join(''));
+
+		if (styles.length > 0) {
+			const errMessage = `Chalk template literal is missing ${styles.length} closing bracket${styles.length === 1 ? '' : 's'} (\`}\`)`;
+			throw new Error(errMessage);
+		}
+
+		return chunks.join('');
+	};
+	return templates;
+}
+
+const ansiStyles = ansiStylesExports;
+const {stdout: stdoutColor, stderr: stderrColor} = supportsColor_1;
+const {
+	stringReplaceAll,
+	stringEncaseCRLFWithFirstIndex
+} = util$d;
+
+const {isArray} = Array;
+
+// `supportsColor.level` → `ansiStyles.color[name]` mapping
+const levelMapping = [
+	'ansi',
+	'ansi',
+	'ansi256',
+	'ansi16m'
+];
+
+const styles = Object.create(null);
+
+const applyOptions = (object, options = {}) => {
+	if (options.level && !(Number.isInteger(options.level) && options.level >= 0 && options.level <= 3)) {
+		throw new Error('The `level` option should be an integer from 0 to 3');
+	}
+
+	// Detect level if not set manually
+	const colorLevel = stdoutColor ? stdoutColor.level : 0;
+	object.level = options.level === undefined ? colorLevel : options.level;
+};
+
+class ChalkClass {
+	constructor(options) {
+		// eslint-disable-next-line no-constructor-return
+		return chalkFactory(options);
+	}
+}
+
+const chalkFactory = options => {
+	const chalk = {};
+	applyOptions(chalk, options);
+
+	chalk.template = (...arguments_) => chalkTag(chalk.template, ...arguments_);
+
+	Object.setPrototypeOf(chalk, Chalk.prototype);
+	Object.setPrototypeOf(chalk.template, chalk);
+
+	chalk.template.constructor = () => {
+		throw new Error('`chalk.constructor()` is deprecated. Use `new chalk.Instance()` instead.');
+	};
+
+	chalk.template.Instance = ChalkClass;
+
+	return chalk.template;
+};
+
+function Chalk(options) {
+	return chalkFactory(options);
+}
+
+for (const [styleName, style] of Object.entries(ansiStyles)) {
+	styles[styleName] = {
+		get() {
+			const builder = createBuilder(this, createStyler(style.open, style.close, this._styler), this._isEmpty);
+			Object.defineProperty(this, styleName, {value: builder});
+			return builder;
+		}
+	};
+}
+
+styles.visible = {
+	get() {
+		const builder = createBuilder(this, this._styler, true);
+		Object.defineProperty(this, 'visible', {value: builder});
+		return builder;
+	}
+};
+
+const usedModels = ['rgb', 'hex', 'keyword', 'hsl', 'hsv', 'hwb', 'ansi', 'ansi256'];
+
+for (const model of usedModels) {
+	styles[model] = {
+		get() {
+			const {level} = this;
+			return function (...arguments_) {
+				const styler = createStyler(ansiStyles.color[levelMapping[level]][model](...arguments_), ansiStyles.color.close, this._styler);
+				return createBuilder(this, styler, this._isEmpty);
+			};
+		}
+	};
+}
+
+for (const model of usedModels) {
+	const bgModel = 'bg' + model[0].toUpperCase() + model.slice(1);
+	styles[bgModel] = {
+		get() {
+			const {level} = this;
+			return function (...arguments_) {
+				const styler = createStyler(ansiStyles.bgColor[levelMapping[level]][model](...arguments_), ansiStyles.bgColor.close, this._styler);
+				return createBuilder(this, styler, this._isEmpty);
+			};
+		}
+	};
+}
+
+const proto = Object.defineProperties(() => {}, {
+	...styles,
+	level: {
+		enumerable: true,
+		get() {
+			return this._generator.level;
+		},
+		set(level) {
+			this._generator.level = level;
+		}
+	}
+});
+
+const createStyler = (open, close, parent) => {
+	let openAll;
+	let closeAll;
+	if (parent === undefined) {
+		openAll = open;
+		closeAll = close;
+	} else {
+		openAll = parent.openAll + open;
+		closeAll = close + parent.closeAll;
+	}
+
+	return {
+		open,
+		close,
+		openAll,
+		closeAll,
+		parent
+	};
+};
+
+const createBuilder = (self, _styler, _isEmpty) => {
+	const builder = (...arguments_) => {
+		if (isArray(arguments_[0]) && isArray(arguments_[0].raw)) {
+			// Called as a template literal, for example: chalk.red`2 + 3 = {bold ${2+3}}`
+			return applyStyle(builder, chalkTag(builder, ...arguments_));
+		}
+
+		// Single argument is hot path, implicit coercion is faster than anything
+		// eslint-disable-next-line no-implicit-coercion
+		return applyStyle(builder, (arguments_.length === 1) ? ('' + arguments_[0]) : arguments_.join(' '));
+	};
+
+	// We alter the prototype because we must return a function, but there is
+	// no way to create a function with a different prototype
+	Object.setPrototypeOf(builder, proto);
+
+	builder._generator = self;
+	builder._styler = _styler;
+	builder._isEmpty = _isEmpty;
+
+	return builder;
+};
+
+const applyStyle = (self, string) => {
+	if (self.level <= 0 || !string) {
+		return self._isEmpty ? '' : string;
+	}
+
+	let styler = self._styler;
+
+	if (styler === undefined) {
+		return string;
+	}
+
+	const {openAll, closeAll} = styler;
+	if (string.indexOf('\u001B') !== -1) {
+		while (styler !== undefined) {
+			// Replace any instances already present with a re-opening code
+			// otherwise only the part of the string until said closing code
+			// will be colored, and the rest will simply be 'plain'.
+			string = stringReplaceAll(string, styler.close, styler.open);
+
+			styler = styler.parent;
+		}
+	}
+
+	// We can move both next actions out of loop, because remaining actions in loop won't have
+	// any/visible effect on parts we add here. Close the styling before a linebreak and reopen
+	// after next line to fix a bleed issue on macOS: https://github.com/chalk/chalk/pull/92
+	const lfIndex = string.indexOf('\n');
+	if (lfIndex !== -1) {
+		string = stringEncaseCRLFWithFirstIndex(string, closeAll, openAll, lfIndex);
+	}
+
+	return openAll + string + closeAll;
+};
+
+let template;
+const chalkTag = (chalk, ...strings) => {
+	const [firstString] = strings;
+
+	if (!isArray(firstString) || !isArray(firstString.raw)) {
+		// If chalk() was called by itself or with a string,
+		// return the string itself as a string.
+		return strings.join(' ');
+	}
+
+	const arguments_ = strings.slice(1);
+	const parts = [firstString.raw[0]];
+
+	for (let i = 1; i < firstString.length; i++) {
+		parts.push(
+			String(arguments_[i - 1]).replace(/[{}\\]/g, '\\$&'),
+			String(firstString.raw[i])
+		);
+	}
+
+	if (template === undefined) {
+		template = requireTemplates();
+	}
+
+	return template(chalk, parts.join(''));
+};
+
+Object.defineProperties(Chalk.prototype, styles);
+
+const chalk = Chalk(); // eslint-disable-line new-cap
+chalk.supportsColor = stdoutColor;
+chalk.stderr = Chalk({level: stderrColor ? stderrColor.level : 0}); // eslint-disable-line new-cap
+chalk.stderr.supportsColor = stderrColor;
+
+var source = chalk;
+
+var chalk$1 = /*@__PURE__*/getDefaultExportFromCjs(source);
+
 var isMergeableObject = function isMergeableObject(value) {
 	return isNonNullObject(value)
 		&& !isSpecial(value)
@@ -5302,13 +7071,13 @@ function isArguments (thingy) {
   return thingy != null && typeof thingy === 'object' && thingy.hasOwnProperty('callee')
 }
 
-const types = {
+const types$1 = {
   '*': {label: 'any', check: () => true},
   A: {label: 'array', check: _ => Array.isArray(_) || isArguments(_)},
   S: {label: 'string', check: _ => typeof _ === 'string'},
   N: {label: 'number', check: _ => typeof _ === 'number'},
   F: {label: 'function', check: _ => typeof _ === 'function'},
-  O: {label: 'object', check: _ => typeof _ === 'object' && _ != null && !types.A.check(_) && !types.E.check(_)},
+  O: {label: 'object', check: _ => typeof _ === 'object' && _ != null && !types$1.A.check(_) && !types$1.E.check(_)},
   B: {label: 'boolean', check: _ => typeof _ === 'boolean'},
   E: {label: 'error', check: _ => _ instanceof Error},
   Z: {label: 'null', check: _ => _ == null}
@@ -5323,15 +7092,15 @@ function validate$1 (rawSchemas, args) {
   if (arguments.length !== 2) throw wrongNumberOfArgs(['SA'], arguments.length)
   if (!rawSchemas) throw missingRequiredArg(0)
   if (!args) throw missingRequiredArg(1)
-  if (!types.S.check(rawSchemas)) throw invalidType(0, ['string'], rawSchemas)
-  if (!types.A.check(args)) throw invalidType(1, ['array'], args)
+  if (!types$1.S.check(rawSchemas)) throw invalidType(0, ['string'], rawSchemas)
+  if (!types$1.A.check(args)) throw invalidType(1, ['array'], args)
   const schemas = rawSchemas.split('|');
   const arity = {};
 
   schemas.forEach(schema => {
     for (let ii = 0; ii < schema.length; ++ii) {
       const type = schema[ii];
-      if (!types[type]) throw unknownType(ii, type)
+      if (!types$1[type]) throw unknownType(ii, type)
     }
     if (/E.*E/.test(schema)) throw moreThanOneError(schema)
     addSchema(schema, arity);
@@ -5348,11 +7117,11 @@ function validate$1 (rawSchemas, args) {
   for (let ii = 0; ii < args.length; ++ii) {
     let newMatching = matching.filter(schema => {
       const type = schema[ii];
-      const typeCheck = types[type].check;
+      const typeCheck = types$1[type].check;
       return typeCheck(args[ii])
     });
     if (!newMatching.length) {
-      const labels = matching.map(_ => types[_[ii]].label).filter(_ => _ != null);
+      const labels = matching.map(_ => types$1[_[ii]].label).filter(_ => _ != null);
       throw invalidType(ii, labels, args[ii])
     }
     matching = newMatching;
@@ -5369,8 +7138,8 @@ function unknownType (num, type) {
 
 function invalidType (num, expectedTypes, value) {
   let valueType;
-  Object.keys(types).forEach(typeCode => {
-    if (types[typeCode].check(value)) valueType = types[typeCode].label;
+  Object.keys(types$1).forEach(typeCode => {
+    if (types$1[typeCode].check(value)) valueType = types$1[typeCode].label;
   });
   return newException('EINVALIDTYPE', 'Argument #' + (num + 1) + ': Expected ' +
     englishList(expectedTypes) + ' but got ' + valueType)
@@ -16755,10 +18524,10 @@ function rebaseFrom$1(rebaseOption, rebaseToOption) {
 
 var rebase$3 = rebaseFrom$1;
 
-var path$7 = require$$1;
+var path$8 = require$$1;
 
 function rebaseToFrom$1(option) {
-  return option ? path$7.resolve(option) : process.cwd();
+  return option ? path$8.resolve(option) : process.cwd();
 }
 
 var rebaseTo = rebaseToFrom$1;
@@ -19998,7 +21767,7 @@ function hasProtocol$4(uri) {
 
 var hasProtocol_1 = hasProtocol$4;
 
-var path$6 = require$$1;
+var path$7 = require$$1;
 var url$2 = require$$1$2;
 
 var isRemoteResource$4 = isRemoteResource_1;
@@ -20029,7 +21798,7 @@ function isAllowedResource$3(uri, isRemote, rules) {
 
   absoluteUri = isRemote
     ? uri
-    : path$6.resolve(uri);
+    : path$7.resolve(uri);
 
   for (i = 0; i < rules.length; i++) {
     rule = rules[i];
@@ -20058,7 +21827,7 @@ function isAllowedResource$3(uri, isRemote, rules) {
       allowed = true;
     } else if (isRemote && absoluteUri.indexOf(rule) === 0) {
       allowed = true;
-    } else if (!isRemote && absoluteUri.indexOf(path$6.resolve(rule)) === 0) {
+    } else if (!isRemote && absoluteUri.indexOf(path$7.resolve(rule)) === 0) {
       allowed = true;
     } else if (isRemote != isRemoteRule(normalizedRule)) {
       allowed = allowed && true;
@@ -20084,15 +21853,15 @@ function matchDataUri$1(uri) {
 
 var matchDataUri_1 = matchDataUri$1;
 
-var path$5 = require$$1;
+var path$6 = require$$1;
 
 function rebaseLocalMap$2(sourceMap, sourceUri, rebaseTo) {
-  var currentPath = path$5.resolve('');
-  var absoluteUri = path$5.resolve(currentPath, sourceUri);
-  var absoluteUriDirectory = path$5.dirname(absoluteUri);
+  var currentPath = path$6.resolve('');
+  var absoluteUri = path$6.resolve(currentPath, sourceUri);
+  var absoluteUriDirectory = path$6.dirname(absoluteUri);
 
   sourceMap.sources = sourceMap.sources.map(function(source) {
-    return path$5.relative(rebaseTo, path$5.resolve(absoluteUriDirectory, source));
+    return path$6.relative(rebaseTo, path$6.resolve(absoluteUriDirectory, source));
   });
 
   return sourceMap;
@@ -20100,11 +21869,11 @@ function rebaseLocalMap$2(sourceMap, sourceUri, rebaseTo) {
 
 var rebaseLocalMap_1 = rebaseLocalMap$2;
 
-var path$4 = require$$1;
+var path$5 = require$$1;
 var url$1 = require$$1$2;
 
 function rebaseRemoteMap$2(sourceMap, sourceUri) {
-  var sourceDirectory = path$4.dirname(sourceUri);
+  var sourceDirectory = path$5.dirname(sourceUri);
 
   sourceMap.sources = sourceMap.sources.map(function(source) {
     return url$1.resolve(sourceDirectory, source);
@@ -20124,7 +21893,7 @@ function isDataUriResource$2(uri) {
 var isDataUriResource_1 = isDataUriResource$2;
 
 var fs$2 = require$$0$3;
-var path$3 = require$$1;
+var path$4 = require$$1;
 
 var isAllowedResource$2 = isAllowedResource_1;
 var matchDataUri = matchDataUri_1;
@@ -20237,7 +22006,7 @@ function extractInputSourceMapFrom(sourceMapComment, applyContext, whenSourceMap
   // at this point `uri` is already rebased, see lib/reader/rebase.js#rebaseSourceMapComment
   // it is rebased to be consistent with rebasing other URIs
   // however here we need to resolve it back to read it from disk
-  absoluteUri = path$3.resolve(applyContext.rebaseTo, uri);
+  absoluteUri = path$4.resolve(applyContext.rebaseTo, uri);
   sourceMap = loadInputSourceMapFromLocalUri(absoluteUri, applyContext);
 
   if (sourceMap) {
@@ -20407,7 +22176,7 @@ function extractImportUrlAndMedia$2(atRuleValue) {
 var extractImportUrlAndMedia_1 = extractImportUrlAndMedia$2;
 
 var fs$1 = require$$0$3;
-var path$2 = require$$1;
+var path$3 = require$$1;
 
 var isAllowedResource$1 = isAllowedResource_1;
 
@@ -20517,7 +22286,7 @@ function loadOriginalSourceFromRemoteUri(uri, loadContext, whenLoaded) {
 
 function loadOriginalSourceFromLocalUri(relativeUri, loadContext) {
   var isAllowed = isAllowedResource$1(relativeUri, false, loadContext.inline);
-  var absoluteUri = path$2.resolve(loadContext.rebaseTo, relativeUri);
+  var absoluteUri = path$3.resolve(loadContext.rebaseTo, relativeUri);
 
   if (!fs$1.existsSync(absoluteUri) || !fs$1.statSync(absoluteUri).isFile()) {
     loadContext.warnings.push('Ignoring local source map at "' + absoluteUri + '" as resource is missing.');
@@ -20551,7 +22320,7 @@ function restoreImport$2(uri, mediaQuery) {
 
 var restoreImport_1 = restoreImport$2;
 
-var path$1 = require$$1;
+var path$2 = require$$1;
 var url = require$$1$2;
 
 var isDataUriResource = isDataUriResource_1;
@@ -20594,7 +22363,7 @@ function rebase$2(uri, rebaseConfig) {
 }
 
 function isAbsolute$1(uri) {
-  return path$1.isAbsolute(uri);
+  return path$2.isAbsolute(uri);
 }
 
 function isSVGMarker(uri) {
@@ -20610,13 +22379,13 @@ function isRemote(uri) {
 }
 
 function absolute(uri, rebaseConfig) {
-  return path$1
-    .resolve(path$1.join(rebaseConfig.fromBase || '', uri))
+  return path$2
+    .resolve(path$2.join(rebaseConfig.fromBase || '', uri))
     .replace(rebaseConfig.toBase, '');
 }
 
 function relative$1(uri, rebaseConfig) {
-  return path$1.relative(rebaseConfig.toBase, path$1.join(rebaseConfig.fromBase || '', uri));
+  return path$2.relative(rebaseConfig.toBase, path$2.join(rebaseConfig.fromBase || '', uri));
 }
 
 function normalize(uri) {
@@ -21638,7 +23407,7 @@ function isRepeatToken(buffer) {
 var tokenize_1 = tokenize$2;
 
 var fs = require$$0$3;
-var path = require$$1;
+var path$1 = require$$1;
 
 var applySourceMaps = applySourceMaps_1;
 var extractImportUrlAndMedia = extractImportUrlAndMedia_1;
@@ -21731,7 +23500,7 @@ function addHashSource(input, context, imports) {
 }
 
 function normalizeUri(uri) {
-  var currentPath = path.resolve('');
+  var currentPath = path$1.resolve('');
   var absoluteUri;
   var relativeToCurrentPath;
   var normalizedUri;
@@ -21740,10 +23509,10 @@ function normalizeUri(uri) {
     return uri;
   }
 
-  absoluteUri = path.isAbsolute(uri)
+  absoluteUri = path$1.isAbsolute(uri)
     ? uri
-    : path.resolve(uri);
-  relativeToCurrentPath = path.relative(currentPath, absoluteUri);
+    : path$1.resolve(uri);
+  relativeToCurrentPath = path$1.relative(currentPath, absoluteUri);
   normalizedUri = normalizePath(relativeToCurrentPath);
 
   return normalizedUri;
@@ -21769,16 +23538,16 @@ function fromStyles(styles, context, parentInlinerContext, callback) {
   var rebaseConfig = {};
 
   if (!context.source) {
-    rebaseConfig.fromBase = path.resolve('');
+    rebaseConfig.fromBase = path$1.resolve('');
     rebaseConfig.toBase = context.options.rebaseTo;
   } else if (isRemoteResource$1(context.source)) {
     rebaseConfig.fromBase = context.source;
     rebaseConfig.toBase = context.source;
-  } else if (path.isAbsolute(context.source)) {
-    rebaseConfig.fromBase = path.dirname(context.source);
+  } else if (path$1.isAbsolute(context.source)) {
+    rebaseConfig.fromBase = path$1.dirname(context.source);
     rebaseConfig.toBase = context.options.rebaseTo;
   } else {
-    rebaseConfig.fromBase = path.dirname(path.resolve(context.source));
+    rebaseConfig.fromBase = path$1.dirname(path$1.resolve(context.source));
     rebaseConfig.toBase = context.options.rebaseTo;
   }
 
@@ -21921,11 +23690,11 @@ function inlineRemoteStylesheet(uri, mediaQuery, metadata, inlinerContext) {
 
 function inlineLocalStylesheet(uri, mediaQuery, metadata, inlinerContext) {
   var protocolLessUri = uri.replace(FILE_RESOURCE_PROTOCOL, '');
-  var currentPath = path.resolve('');
-  var absoluteUri = path.isAbsolute(protocolLessUri)
-    ? path.resolve(currentPath, protocolLessUri[0] == '/' ? protocolLessUri.substring(1) : protocolLessUri)
-    : path.resolve(inlinerContext.rebaseTo, protocolLessUri);
-  var relativeToCurrentPath = path.relative(currentPath, absoluteUri);
+  var currentPath = path$1.resolve('');
+  var absoluteUri = path$1.isAbsolute(protocolLessUri)
+    ? path$1.resolve(currentPath, protocolLessUri[0] == '/' ? protocolLessUri.substring(1) : protocolLessUri)
+    : path$1.resolve(inlinerContext.rebaseTo, protocolLessUri);
+  var relativeToCurrentPath = path$1.relative(currentPath, absoluteUri);
   var importedStyles;
   var isAllowed = isAllowedResource(protocolLessUri, false, inlinerContext.inline);
   var normalizedPath = normalizePath(relativeToCurrentPath);
@@ -30509,6 +32278,2211 @@ postcssSortMediaQueries.exports.postcss = true;
 
 var postcssSortMediaQueriesExports = postcssSortMediaQueries.exports;
 var sortMediaQueries = /*@__PURE__*/getDefaultExportFromCjs(postcssSortMediaQueriesExports);
+
+var postcssPruneVar = {exports: {}};
+
+var commonjs = {};
+
+var balancedMatch = balanced$1;
+function balanced$1(a, b, str) {
+  if (a instanceof RegExp) a = maybeMatch(a, str);
+  if (b instanceof RegExp) b = maybeMatch(b, str);
+
+  var r = range(a, b, str);
+
+  return r && {
+    start: r[0],
+    end: r[1],
+    pre: str.slice(0, r[0]),
+    body: str.slice(r[0] + a.length, r[1]),
+    post: str.slice(r[1] + b.length)
+  };
+}
+
+function maybeMatch(reg, str) {
+  var m = str.match(reg);
+  return m ? m[0] : null;
+}
+
+balanced$1.range = range;
+function range(a, b, str) {
+  var begs, beg, left, right, result;
+  var ai = str.indexOf(a);
+  var bi = str.indexOf(b, ai + 1);
+  var i = ai;
+
+  if (ai >= 0 && bi > 0) {
+    if(a===b) {
+      return [ai, bi];
+    }
+    begs = [];
+    left = str.length;
+
+    while (i >= 0 && !result) {
+      if (i == ai) {
+        begs.push(i);
+        ai = str.indexOf(a, i + 1);
+      } else if (begs.length == 1) {
+        result = [ begs.pop(), bi ];
+      } else {
+        beg = begs.pop();
+        if (beg < left) {
+          left = beg;
+          right = bi;
+        }
+
+        bi = str.indexOf(b, i + 1);
+      }
+
+      i = ai < bi && ai >= 0 ? ai : bi;
+    }
+
+    if (begs.length) {
+      result = [ left, right ];
+    }
+  }
+
+  return result;
+}
+
+var balanced = balancedMatch;
+
+var braceExpansion = expandTop;
+
+var escSlash = '\0SLASH'+Math.random()+'\0';
+var escOpen = '\0OPEN'+Math.random()+'\0';
+var escClose = '\0CLOSE'+Math.random()+'\0';
+var escComma = '\0COMMA'+Math.random()+'\0';
+var escPeriod = '\0PERIOD'+Math.random()+'\0';
+
+function numeric(str) {
+  return parseInt(str, 10) == str
+    ? parseInt(str, 10)
+    : str.charCodeAt(0);
+}
+
+function escapeBraces(str) {
+  return str.split('\\\\').join(escSlash)
+            .split('\\{').join(escOpen)
+            .split('\\}').join(escClose)
+            .split('\\,').join(escComma)
+            .split('\\.').join(escPeriod);
+}
+
+function unescapeBraces(str) {
+  return str.split(escSlash).join('\\')
+            .split(escOpen).join('{')
+            .split(escClose).join('}')
+            .split(escComma).join(',')
+            .split(escPeriod).join('.');
+}
+
+
+// Basically just str.split(","), but handling cases
+// where we have nested braced sections, which should be
+// treated as individual members, like {a,{b,c},d}
+function parseCommaParts(str) {
+  if (!str)
+    return [''];
+
+  var parts = [];
+  var m = balanced('{', '}', str);
+
+  if (!m)
+    return str.split(',');
+
+  var pre = m.pre;
+  var body = m.body;
+  var post = m.post;
+  var p = pre.split(',');
+
+  p[p.length-1] += '{' + body + '}';
+  var postParts = parseCommaParts(post);
+  if (post.length) {
+    p[p.length-1] += postParts.shift();
+    p.push.apply(p, postParts);
+  }
+
+  parts.push.apply(parts, p);
+
+  return parts;
+}
+
+function expandTop(str) {
+  if (!str)
+    return [];
+
+  // I don't know why Bash 4.3 does this, but it does.
+  // Anything starting with {} will have the first two bytes preserved
+  // but *only* at the top level, so {},a}b will not expand to anything,
+  // but a{},b}c will be expanded to [a}c,abc].
+  // One could argue that this is a bug in Bash, but since the goal of
+  // this module is to match Bash's rules, we escape a leading {}
+  if (str.substr(0, 2) === '{}') {
+    str = '\\{\\}' + str.substr(2);
+  }
+
+  return expand(escapeBraces(str), true).map(unescapeBraces);
+}
+
+function embrace(str) {
+  return '{' + str + '}';
+}
+function isPadded(el) {
+  return /^-?0\d/.test(el);
+}
+
+function lte(i, y) {
+  return i <= y;
+}
+function gte(i, y) {
+  return i >= y;
+}
+
+function expand(str, isTop) {
+  var expansions = [];
+
+  var m = balanced('{', '}', str);
+  if (!m) return [str];
+
+  // no need to expand pre, since it is guaranteed to be free of brace-sets
+  var pre = m.pre;
+  var post = m.post.length
+    ? expand(m.post, false)
+    : [''];
+
+  if (/\$$/.test(m.pre)) {    
+    for (var k = 0; k < post.length; k++) {
+      var expansion = pre+ '{' + m.body + '}' + post[k];
+      expansions.push(expansion);
+    }
+  } else {
+    var isNumericSequence = /^-?\d+\.\.-?\d+(?:\.\.-?\d+)?$/.test(m.body);
+    var isAlphaSequence = /^[a-zA-Z]\.\.[a-zA-Z](?:\.\.-?\d+)?$/.test(m.body);
+    var isSequence = isNumericSequence || isAlphaSequence;
+    var isOptions = m.body.indexOf(',') >= 0;
+    if (!isSequence && !isOptions) {
+      // {a},b}
+      if (m.post.match(/,.*\}/)) {
+        str = m.pre + '{' + m.body + escClose + m.post;
+        return expand(str);
+      }
+      return [str];
+    }
+
+    var n;
+    if (isSequence) {
+      n = m.body.split(/\.\./);
+    } else {
+      n = parseCommaParts(m.body);
+      if (n.length === 1) {
+        // x{{a,b}}y ==> x{a}y x{b}y
+        n = expand(n[0], false).map(embrace);
+        if (n.length === 1) {
+          return post.map(function(p) {
+            return m.pre + n[0] + p;
+          });
+        }
+      }
+    }
+
+    // at this point, n is the parts, and we know it's not a comma set
+    // with a single entry.
+    var N;
+
+    if (isSequence) {
+      var x = numeric(n[0]);
+      var y = numeric(n[1]);
+      var width = Math.max(n[0].length, n[1].length);
+      var incr = n.length == 3
+        ? Math.abs(numeric(n[2]))
+        : 1;
+      var test = lte;
+      var reverse = y < x;
+      if (reverse) {
+        incr *= -1;
+        test = gte;
+      }
+      var pad = n.some(isPadded);
+
+      N = [];
+
+      for (var i = x; test(i, y); i += incr) {
+        var c;
+        if (isAlphaSequence) {
+          c = String.fromCharCode(i);
+          if (c === '\\')
+            c = '';
+        } else {
+          c = String(i);
+          if (pad) {
+            var need = width - c.length;
+            if (need > 0) {
+              var z = new Array(need + 1).join('0');
+              if (i < 0)
+                c = '-' + z + c.slice(1);
+              else
+                c = z + c;
+            }
+          }
+        }
+        N.push(c);
+      }
+    } else {
+      N = [];
+
+      for (var j = 0; j < n.length; j++) {
+        N.push.apply(N, expand(n[j], false));
+      }
+    }
+
+    for (var j = 0; j < N.length; j++) {
+      for (var k = 0; k < post.length; k++) {
+        var expansion = pre + N[j] + post[k];
+        if (!isTop || isSequence || expansion)
+          expansions.push(expansion);
+      }
+    }
+  }
+
+  return expansions;
+}
+
+var assertValidPattern$1 = {};
+
+Object.defineProperty(assertValidPattern$1, "__esModule", { value: true });
+assertValidPattern$1.assertValidPattern = void 0;
+const MAX_PATTERN_LENGTH = 1024 * 64;
+const assertValidPattern = (pattern) => {
+    if (typeof pattern !== 'string') {
+        throw new TypeError('invalid pattern');
+    }
+    if (pattern.length > MAX_PATTERN_LENGTH) {
+        throw new TypeError('pattern is too long');
+    }
+};
+assertValidPattern$1.assertValidPattern = assertValidPattern;
+
+var ast$1 = {};
+
+var braceExpressions = {};
+
+// translate the various posix character classes into unicode properties
+// this works across all unicode locales
+Object.defineProperty(braceExpressions, "__esModule", { value: true });
+braceExpressions.parseClass = void 0;
+// { <posix class>: [<translation>, /u flag required, negated]
+const posixClasses = {
+    '[:alnum:]': ['\\p{L}\\p{Nl}\\p{Nd}', true],
+    '[:alpha:]': ['\\p{L}\\p{Nl}', true],
+    '[:ascii:]': ['\\x' + '00-\\x' + '7f', false],
+    '[:blank:]': ['\\p{Zs}\\t', true],
+    '[:cntrl:]': ['\\p{Cc}', true],
+    '[:digit:]': ['\\p{Nd}', true],
+    '[:graph:]': ['\\p{Z}\\p{C}', true, true],
+    '[:lower:]': ['\\p{Ll}', true],
+    '[:print:]': ['\\p{C}', true],
+    '[:punct:]': ['\\p{P}', true],
+    '[:space:]': ['\\p{Z}\\t\\r\\n\\v\\f', true],
+    '[:upper:]': ['\\p{Lu}', true],
+    '[:word:]': ['\\p{L}\\p{Nl}\\p{Nd}\\p{Pc}', true],
+    '[:xdigit:]': ['A-Fa-f0-9', false],
+};
+// only need to escape a few things inside of brace expressions
+// escapes: [ \ ] -
+const braceEscape = (s) => s.replace(/[[\]\\-]/g, '\\$&');
+// escape all regexp magic characters
+const regexpEscape = (s) => s.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+// everything has already been escaped, we just have to join
+const rangesToString = (ranges) => ranges.join('');
+// takes a glob string at a posix brace expression, and returns
+// an equivalent regular expression source, and boolean indicating
+// whether the /u flag needs to be applied, and the number of chars
+// consumed to parse the character class.
+// This also removes out of order ranges, and returns ($.) if the
+// entire class just no good.
+const parseClass = (glob, position) => {
+    const pos = position;
+    /* c8 ignore start */
+    if (glob.charAt(pos) !== '[') {
+        throw new Error('not in a brace expression');
+    }
+    /* c8 ignore stop */
+    const ranges = [];
+    const negs = [];
+    let i = pos + 1;
+    let sawStart = false;
+    let uflag = false;
+    let escaping = false;
+    let negate = false;
+    let endPos = pos;
+    let rangeStart = '';
+    WHILE: while (i < glob.length) {
+        const c = glob.charAt(i);
+        if ((c === '!' || c === '^') && i === pos + 1) {
+            negate = true;
+            i++;
+            continue;
+        }
+        if (c === ']' && sawStart && !escaping) {
+            endPos = i + 1;
+            break;
+        }
+        sawStart = true;
+        if (c === '\\') {
+            if (!escaping) {
+                escaping = true;
+                i++;
+                continue;
+            }
+            // escaped \ char, fall through and treat like normal char
+        }
+        if (c === '[' && !escaping) {
+            // either a posix class, a collation equivalent, or just a [
+            for (const [cls, [unip, u, neg]] of Object.entries(posixClasses)) {
+                if (glob.startsWith(cls, i)) {
+                    // invalid, [a-[] is fine, but not [a-[:alpha]]
+                    if (rangeStart) {
+                        return ['$.', false, glob.length - pos, true];
+                    }
+                    i += cls.length;
+                    if (neg)
+                        negs.push(unip);
+                    else
+                        ranges.push(unip);
+                    uflag = uflag || u;
+                    continue WHILE;
+                }
+            }
+        }
+        // now it's just a normal character, effectively
+        escaping = false;
+        if (rangeStart) {
+            // throw this range away if it's not valid, but others
+            // can still match.
+            if (c > rangeStart) {
+                ranges.push(braceEscape(rangeStart) + '-' + braceEscape(c));
+            }
+            else if (c === rangeStart) {
+                ranges.push(braceEscape(c));
+            }
+            rangeStart = '';
+            i++;
+            continue;
+        }
+        // now might be the start of a range.
+        // can be either c-d or c-] or c<more...>] or c] at this point
+        if (glob.startsWith('-]', i + 1)) {
+            ranges.push(braceEscape(c + '-'));
+            i += 2;
+            continue;
+        }
+        if (glob.startsWith('-', i + 1)) {
+            rangeStart = c;
+            i += 2;
+            continue;
+        }
+        // not the start of a range, just a single character
+        ranges.push(braceEscape(c));
+        i++;
+    }
+    if (endPos < i) {
+        // didn't see the end of the class, not a valid class,
+        // but might still be valid as a literal match.
+        return ['', false, 0, false];
+    }
+    // if we got no ranges and no negates, then we have a range that
+    // cannot possibly match anything, and that poisons the whole glob
+    if (!ranges.length && !negs.length) {
+        return ['$.', false, glob.length - pos, true];
+    }
+    // if we got one positive range, and it's a single character, then that's
+    // not actually a magic pattern, it's just that one literal character.
+    // we should not treat that as "magic", we should just return the literal
+    // character. [_] is a perfectly valid way to escape glob magic chars.
+    if (negs.length === 0 &&
+        ranges.length === 1 &&
+        /^\\?.$/.test(ranges[0]) &&
+        !negate) {
+        const r = ranges[0].length === 2 ? ranges[0].slice(-1) : ranges[0];
+        return [regexpEscape(r), false, endPos - pos, false];
+    }
+    const sranges = '[' + (negate ? '^' : '') + rangesToString(ranges) + ']';
+    const snegs = '[' + (negate ? '' : '^') + rangesToString(negs) + ']';
+    const comb = ranges.length && negs.length
+        ? '(' + sranges + '|' + snegs + ')'
+        : ranges.length
+            ? sranges
+            : snegs;
+    return [comb, uflag, endPos - pos, true];
+};
+braceExpressions.parseClass = parseClass;
+
+var _unescape = {};
+
+Object.defineProperty(_unescape, "__esModule", { value: true });
+_unescape.unescape = void 0;
+/**
+ * Un-escape a string that has been escaped with {@link escape}.
+ *
+ * If the {@link windowsPathsNoEscape} option is used, then square-brace
+ * escapes are removed, but not backslash escapes.  For example, it will turn
+ * the string `'[*]'` into `*`, but it will not turn `'\\*'` into `'*'`,
+ * becuase `\` is a path separator in `windowsPathsNoEscape` mode.
+ *
+ * When `windowsPathsNoEscape` is not set, then both brace escapes and
+ * backslash escapes are removed.
+ *
+ * Slashes (and backslashes in `windowsPathsNoEscape` mode) cannot be escaped
+ * or unescaped.
+ */
+const unescape$1 = (s, { windowsPathsNoEscape = false, } = {}) => {
+    return windowsPathsNoEscape
+        ? s.replace(/\[([^\/\\])\]/g, '$1')
+        : s.replace(/((?!\\).|^)\[([^\/\\])\]/g, '$1$2').replace(/\\([^\/])/g, '$1');
+};
+_unescape.unescape = unescape$1;
+
+// parse a single path portion
+Object.defineProperty(ast$1, "__esModule", { value: true });
+ast$1.AST = void 0;
+const brace_expressions_js_1 = braceExpressions;
+const unescape_js_1 = _unescape;
+const types = new Set(['!', '?', '+', '*', '@']);
+const isExtglobType = (c) => types.has(c);
+// Patterns that get prepended to bind to the start of either the
+// entire string, or just a single path portion, to prevent dots
+// and/or traversal patterns, when needed.
+// Exts don't need the ^ or / bit, because the root binds that already.
+const startNoTraversal = '(?!(?:^|/)\\.\\.?(?:$|/))';
+const startNoDot = '(?!\\.)';
+// characters that indicate a start of pattern needs the "no dots" bit,
+// because a dot *might* be matched. ( is not in the list, because in
+// the case of a child extglob, it will handle the prevention itself.
+const addPatternStart = new Set(['[', '.']);
+// cases where traversal is A-OK, no dot prevention needed
+const justDots = new Set(['..', '.']);
+const reSpecials = new Set('().*{}+?[]^$\\!');
+const regExpEscape = (s) => s.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+// any single thing other than /
+const qmark = '[^/]';
+// * => any number of characters
+const star = qmark + '*?';
+// use + when we need to ensure that *something* matches, because the * is
+// the only thing in the path portion.
+const starNoEmpty = qmark + '+?';
+// remove the \ chars that we added if we end up doing a nonmagic compare
+// const deslash = (s: string) => s.replace(/\\(.)/g, '$1')
+class AST {
+    type;
+    #root;
+    #hasMagic;
+    #uflag = false;
+    #parts = [];
+    #parent;
+    #parentIndex;
+    #negs;
+    #filledNegs = false;
+    #options;
+    #toString;
+    // set to true if it's an extglob with no children
+    // (which really means one child of '')
+    #emptyExt = false;
+    constructor(type, parent, options = {}) {
+        this.type = type;
+        // extglobs are inherently magical
+        if (type)
+            this.#hasMagic = true;
+        this.#parent = parent;
+        this.#root = this.#parent ? this.#parent.#root : this;
+        this.#options = this.#root === this ? options : this.#root.#options;
+        this.#negs = this.#root === this ? [] : this.#root.#negs;
+        if (type === '!' && !this.#root.#filledNegs)
+            this.#negs.push(this);
+        this.#parentIndex = this.#parent ? this.#parent.#parts.length : 0;
+    }
+    get hasMagic() {
+        /* c8 ignore start */
+        if (this.#hasMagic !== undefined)
+            return this.#hasMagic;
+        /* c8 ignore stop */
+        for (const p of this.#parts) {
+            if (typeof p === 'string')
+                continue;
+            if (p.type || p.hasMagic)
+                return (this.#hasMagic = true);
+        }
+        // note: will be undefined until we generate the regexp src and find out
+        return this.#hasMagic;
+    }
+    // reconstructs the pattern
+    toString() {
+        if (this.#toString !== undefined)
+            return this.#toString;
+        if (!this.type) {
+            return (this.#toString = this.#parts.map(p => String(p)).join(''));
+        }
+        else {
+            return (this.#toString =
+                this.type + '(' + this.#parts.map(p => String(p)).join('|') + ')');
+        }
+    }
+    #fillNegs() {
+        /* c8 ignore start */
+        if (this !== this.#root)
+            throw new Error('should only call on root');
+        if (this.#filledNegs)
+            return this;
+        /* c8 ignore stop */
+        // call toString() once to fill this out
+        this.toString();
+        this.#filledNegs = true;
+        let n;
+        while ((n = this.#negs.pop())) {
+            if (n.type !== '!')
+                continue;
+            // walk up the tree, appending everthing that comes AFTER parentIndex
+            let p = n;
+            let pp = p.#parent;
+            while (pp) {
+                for (let i = p.#parentIndex + 1; !pp.type && i < pp.#parts.length; i++) {
+                    for (const part of n.#parts) {
+                        /* c8 ignore start */
+                        if (typeof part === 'string') {
+                            throw new Error('string part in extglob AST??');
+                        }
+                        /* c8 ignore stop */
+                        part.copyIn(pp.#parts[i]);
+                    }
+                }
+                p = pp;
+                pp = p.#parent;
+            }
+        }
+        return this;
+    }
+    push(...parts) {
+        for (const p of parts) {
+            if (p === '')
+                continue;
+            /* c8 ignore start */
+            if (typeof p !== 'string' && !(p instanceof AST && p.#parent === this)) {
+                throw new Error('invalid part: ' + p);
+            }
+            /* c8 ignore stop */
+            this.#parts.push(p);
+        }
+    }
+    toJSON() {
+        const ret = this.type === null
+            ? this.#parts.slice().map(p => (typeof p === 'string' ? p : p.toJSON()))
+            : [this.type, ...this.#parts.map(p => p.toJSON())];
+        if (this.isStart() && !this.type)
+            ret.unshift([]);
+        if (this.isEnd() &&
+            (this === this.#root ||
+                (this.#root.#filledNegs && this.#parent?.type === '!'))) {
+            ret.push({});
+        }
+        return ret;
+    }
+    isStart() {
+        if (this.#root === this)
+            return true;
+        // if (this.type) return !!this.#parent?.isStart()
+        if (!this.#parent?.isStart())
+            return false;
+        if (this.#parentIndex === 0)
+            return true;
+        // if everything AHEAD of this is a negation, then it's still the "start"
+        const p = this.#parent;
+        for (let i = 0; i < this.#parentIndex; i++) {
+            const pp = p.#parts[i];
+            if (!(pp instanceof AST && pp.type === '!')) {
+                return false;
+            }
+        }
+        return true;
+    }
+    isEnd() {
+        if (this.#root === this)
+            return true;
+        if (this.#parent?.type === '!')
+            return true;
+        if (!this.#parent?.isEnd())
+            return false;
+        if (!this.type)
+            return this.#parent?.isEnd();
+        // if not root, it'll always have a parent
+        /* c8 ignore start */
+        const pl = this.#parent ? this.#parent.#parts.length : 0;
+        /* c8 ignore stop */
+        return this.#parentIndex === pl - 1;
+    }
+    copyIn(part) {
+        if (typeof part === 'string')
+            this.push(part);
+        else
+            this.push(part.clone(this));
+    }
+    clone(parent) {
+        const c = new AST(this.type, parent);
+        for (const p of this.#parts) {
+            c.copyIn(p);
+        }
+        return c;
+    }
+    static #parseAST(str, ast, pos, opt) {
+        let escaping = false;
+        let inBrace = false;
+        let braceStart = -1;
+        let braceNeg = false;
+        if (ast.type === null) {
+            // outside of a extglob, append until we find a start
+            let i = pos;
+            let acc = '';
+            while (i < str.length) {
+                const c = str.charAt(i++);
+                // still accumulate escapes at this point, but we do ignore
+                // starts that are escaped
+                if (escaping || c === '\\') {
+                    escaping = !escaping;
+                    acc += c;
+                    continue;
+                }
+                if (inBrace) {
+                    if (i === braceStart + 1) {
+                        if (c === '^' || c === '!') {
+                            braceNeg = true;
+                        }
+                    }
+                    else if (c === ']' && !(i === braceStart + 2 && braceNeg)) {
+                        inBrace = false;
+                    }
+                    acc += c;
+                    continue;
+                }
+                else if (c === '[') {
+                    inBrace = true;
+                    braceStart = i;
+                    braceNeg = false;
+                    acc += c;
+                    continue;
+                }
+                if (!opt.noext && isExtglobType(c) && str.charAt(i) === '(') {
+                    ast.push(acc);
+                    acc = '';
+                    const ext = new AST(c, ast);
+                    i = AST.#parseAST(str, ext, i, opt);
+                    ast.push(ext);
+                    continue;
+                }
+                acc += c;
+            }
+            ast.push(acc);
+            return i;
+        }
+        // some kind of extglob, pos is at the (
+        // find the next | or )
+        let i = pos + 1;
+        let part = new AST(null, ast);
+        const parts = [];
+        let acc = '';
+        while (i < str.length) {
+            const c = str.charAt(i++);
+            // still accumulate escapes at this point, but we do ignore
+            // starts that are escaped
+            if (escaping || c === '\\') {
+                escaping = !escaping;
+                acc += c;
+                continue;
+            }
+            if (inBrace) {
+                if (i === braceStart + 1) {
+                    if (c === '^' || c === '!') {
+                        braceNeg = true;
+                    }
+                }
+                else if (c === ']' && !(i === braceStart + 2 && braceNeg)) {
+                    inBrace = false;
+                }
+                acc += c;
+                continue;
+            }
+            else if (c === '[') {
+                inBrace = true;
+                braceStart = i;
+                braceNeg = false;
+                acc += c;
+                continue;
+            }
+            if (isExtglobType(c) && str.charAt(i) === '(') {
+                part.push(acc);
+                acc = '';
+                const ext = new AST(c, part);
+                part.push(ext);
+                i = AST.#parseAST(str, ext, i, opt);
+                continue;
+            }
+            if (c === '|') {
+                part.push(acc);
+                acc = '';
+                parts.push(part);
+                part = new AST(null, ast);
+                continue;
+            }
+            if (c === ')') {
+                if (acc === '' && ast.#parts.length === 0) {
+                    ast.#emptyExt = true;
+                }
+                part.push(acc);
+                acc = '';
+                ast.push(...parts, part);
+                return i;
+            }
+            acc += c;
+        }
+        // unfinished extglob
+        // if we got here, it was a malformed extglob! not an extglob, but
+        // maybe something else in there.
+        ast.type = null;
+        ast.#hasMagic = undefined;
+        ast.#parts = [str.substring(pos - 1)];
+        return i;
+    }
+    static fromGlob(pattern, options = {}) {
+        const ast = new AST(null, undefined, options);
+        AST.#parseAST(pattern, ast, 0, options);
+        return ast;
+    }
+    // returns the regular expression if there's magic, or the unescaped
+    // string if not.
+    toMMPattern() {
+        // should only be called on root
+        /* c8 ignore start */
+        if (this !== this.#root)
+            return this.#root.toMMPattern();
+        /* c8 ignore stop */
+        const glob = this.toString();
+        const [re, body, hasMagic, uflag] = this.toRegExpSource();
+        // if we're in nocase mode, and not nocaseMagicOnly, then we do
+        // still need a regular expression if we have to case-insensitively
+        // match capital/lowercase characters.
+        const anyMagic = hasMagic ||
+            this.#hasMagic ||
+            (this.#options.nocase &&
+                !this.#options.nocaseMagicOnly &&
+                glob.toUpperCase() !== glob.toLowerCase());
+        if (!anyMagic) {
+            return body;
+        }
+        const flags = (this.#options.nocase ? 'i' : '') + (uflag ? 'u' : '');
+        return Object.assign(new RegExp(`^${re}$`, flags), {
+            _src: re,
+            _glob: glob,
+        });
+    }
+    get options() {
+        return this.#options;
+    }
+    // returns the string match, the regexp source, whether there's magic
+    // in the regexp (so a regular expression is required) and whether or
+    // not the uflag is needed for the regular expression (for posix classes)
+    // TODO: instead of injecting the start/end at this point, just return
+    // the BODY of the regexp, along with the start/end portions suitable
+    // for binding the start/end in either a joined full-path makeRe context
+    // (where we bind to (^|/), or a standalone matchPart context (where
+    // we bind to ^, and not /).  Otherwise slashes get duped!
+    //
+    // In part-matching mode, the start is:
+    // - if not isStart: nothing
+    // - if traversal possible, but not allowed: ^(?!\.\.?$)
+    // - if dots allowed or not possible: ^
+    // - if dots possible and not allowed: ^(?!\.)
+    // end is:
+    // - if not isEnd(): nothing
+    // - else: $
+    //
+    // In full-path matching mode, we put the slash at the START of the
+    // pattern, so start is:
+    // - if first pattern: same as part-matching mode
+    // - if not isStart(): nothing
+    // - if traversal possible, but not allowed: /(?!\.\.?(?:$|/))
+    // - if dots allowed or not possible: /
+    // - if dots possible and not allowed: /(?!\.)
+    // end is:
+    // - if last pattern, same as part-matching mode
+    // - else nothing
+    //
+    // Always put the (?:$|/) on negated tails, though, because that has to be
+    // there to bind the end of the negated pattern portion, and it's easier to
+    // just stick it in now rather than try to inject it later in the middle of
+    // the pattern.
+    //
+    // We can just always return the same end, and leave it up to the caller
+    // to know whether it's going to be used joined or in parts.
+    // And, if the start is adjusted slightly, can do the same there:
+    // - if not isStart: nothing
+    // - if traversal possible, but not allowed: (?:/|^)(?!\.\.?$)
+    // - if dots allowed or not possible: (?:/|^)
+    // - if dots possible and not allowed: (?:/|^)(?!\.)
+    //
+    // But it's better to have a simpler binding without a conditional, for
+    // performance, so probably better to return both start options.
+    //
+    // Then the caller just ignores the end if it's not the first pattern,
+    // and the start always gets applied.
+    //
+    // But that's always going to be $ if it's the ending pattern, or nothing,
+    // so the caller can just attach $ at the end of the pattern when building.
+    //
+    // So the todo is:
+    // - better detect what kind of start is needed
+    // - return both flavors of starting pattern
+    // - attach $ at the end of the pattern when creating the actual RegExp
+    //
+    // Ah, but wait, no, that all only applies to the root when the first pattern
+    // is not an extglob. If the first pattern IS an extglob, then we need all
+    // that dot prevention biz to live in the extglob portions, because eg
+    // +(*|.x*) can match .xy but not .yx.
+    //
+    // So, return the two flavors if it's #root and the first child is not an
+    // AST, otherwise leave it to the child AST to handle it, and there,
+    // use the (?:^|/) style of start binding.
+    //
+    // Even simplified further:
+    // - Since the start for a join is eg /(?!\.) and the start for a part
+    // is ^(?!\.), we can just prepend (?!\.) to the pattern (either root
+    // or start or whatever) and prepend ^ or / at the Regexp construction.
+    toRegExpSource(allowDot) {
+        const dot = allowDot ?? !!this.#options.dot;
+        if (this.#root === this)
+            this.#fillNegs();
+        if (!this.type) {
+            const noEmpty = this.isStart() && this.isEnd();
+            const src = this.#parts
+                .map(p => {
+                const [re, _, hasMagic, uflag] = typeof p === 'string'
+                    ? AST.#parseGlob(p, this.#hasMagic, noEmpty)
+                    : p.toRegExpSource(allowDot);
+                this.#hasMagic = this.#hasMagic || hasMagic;
+                this.#uflag = this.#uflag || uflag;
+                return re;
+            })
+                .join('');
+            let start = '';
+            if (this.isStart()) {
+                if (typeof this.#parts[0] === 'string') {
+                    // this is the string that will match the start of the pattern,
+                    // so we need to protect against dots and such.
+                    // '.' and '..' cannot match unless the pattern is that exactly,
+                    // even if it starts with . or dot:true is set.
+                    const dotTravAllowed = this.#parts.length === 1 && justDots.has(this.#parts[0]);
+                    if (!dotTravAllowed) {
+                        const aps = addPatternStart;
+                        // check if we have a possibility of matching . or ..,
+                        // and prevent that.
+                        const needNoTrav = 
+                        // dots are allowed, and the pattern starts with [ or .
+                        (dot && aps.has(src.charAt(0))) ||
+                            // the pattern starts with \., and then [ or .
+                            (src.startsWith('\\.') && aps.has(src.charAt(2))) ||
+                            // the pattern starts with \.\., and then [ or .
+                            (src.startsWith('\\.\\.') && aps.has(src.charAt(4)));
+                        // no need to prevent dots if it can't match a dot, or if a
+                        // sub-pattern will be preventing it anyway.
+                        const needNoDot = !dot && !allowDot && aps.has(src.charAt(0));
+                        start = needNoTrav ? startNoTraversal : needNoDot ? startNoDot : '';
+                    }
+                }
+            }
+            // append the "end of path portion" pattern to negation tails
+            let end = '';
+            if (this.isEnd() &&
+                this.#root.#filledNegs &&
+                this.#parent?.type === '!') {
+                end = '(?:$|\\/)';
+            }
+            const final = start + src + end;
+            return [
+                final,
+                (0, unescape_js_1.unescape)(src),
+                (this.#hasMagic = !!this.#hasMagic),
+                this.#uflag,
+            ];
+        }
+        // We need to calculate the body *twice* if it's a repeat pattern
+        // at the start, once in nodot mode, then again in dot mode, so a
+        // pattern like *(?) can match 'x.y'
+        const repeated = this.type === '*' || this.type === '+';
+        // some kind of extglob
+        const start = this.type === '!' ? '(?:(?!(?:' : '(?:';
+        let body = this.#partsToRegExp(dot);
+        if (this.isStart() && this.isEnd() && !body && this.type !== '!') {
+            // invalid extglob, has to at least be *something* present, if it's
+            // the entire path portion.
+            const s = this.toString();
+            this.#parts = [s];
+            this.type = null;
+            this.#hasMagic = undefined;
+            return [s, (0, unescape_js_1.unescape)(this.toString()), false, false];
+        }
+        // XXX abstract out this map method
+        let bodyDotAllowed = !repeated || allowDot || dot || !startNoDot
+            ? ''
+            : this.#partsToRegExp(true);
+        if (bodyDotAllowed === body) {
+            bodyDotAllowed = '';
+        }
+        if (bodyDotAllowed) {
+            body = `(?:${body})(?:${bodyDotAllowed})*?`;
+        }
+        // an empty !() is exactly equivalent to a starNoEmpty
+        let final = '';
+        if (this.type === '!' && this.#emptyExt) {
+            final = (this.isStart() && !dot ? startNoDot : '') + starNoEmpty;
+        }
+        else {
+            const close = this.type === '!'
+                ? // !() must match something,but !(x) can match ''
+                    '))' +
+                        (this.isStart() && !dot && !allowDot ? startNoDot : '') +
+                        star +
+                        ')'
+                : this.type === '@'
+                    ? ')'
+                    : this.type === '?'
+                        ? ')?'
+                        : this.type === '+' && bodyDotAllowed
+                            ? ')'
+                            : this.type === '*' && bodyDotAllowed
+                                ? `)?`
+                                : `)${this.type}`;
+            final = start + body + close;
+        }
+        return [
+            final,
+            (0, unescape_js_1.unescape)(body),
+            (this.#hasMagic = !!this.#hasMagic),
+            this.#uflag,
+        ];
+    }
+    #partsToRegExp(dot) {
+        return this.#parts
+            .map(p => {
+            // extglob ASTs should only contain parent ASTs
+            /* c8 ignore start */
+            if (typeof p === 'string') {
+                throw new Error('string type in extglob ast??');
+            }
+            /* c8 ignore stop */
+            // can ignore hasMagic, because extglobs are already always magic
+            const [re, _, _hasMagic, uflag] = p.toRegExpSource(dot);
+            this.#uflag = this.#uflag || uflag;
+            return re;
+        })
+            .filter(p => !(this.isStart() && this.isEnd()) || !!p)
+            .join('|');
+    }
+    static #parseGlob(glob, hasMagic, noEmpty = false) {
+        let escaping = false;
+        let re = '';
+        let uflag = false;
+        for (let i = 0; i < glob.length; i++) {
+            const c = glob.charAt(i);
+            if (escaping) {
+                escaping = false;
+                re += (reSpecials.has(c) ? '\\' : '') + c;
+                continue;
+            }
+            if (c === '\\') {
+                if (i === glob.length - 1) {
+                    re += '\\\\';
+                }
+                else {
+                    escaping = true;
+                }
+                continue;
+            }
+            if (c === '[') {
+                const [src, needUflag, consumed, magic] = (0, brace_expressions_js_1.parseClass)(glob, i);
+                if (consumed) {
+                    re += src;
+                    uflag = uflag || needUflag;
+                    i += consumed - 1;
+                    hasMagic = hasMagic || magic;
+                    continue;
+                }
+            }
+            if (c === '*') {
+                if (noEmpty && glob === '*')
+                    re += starNoEmpty;
+                else
+                    re += star;
+                hasMagic = true;
+                continue;
+            }
+            if (c === '?') {
+                re += qmark;
+                hasMagic = true;
+                continue;
+            }
+            re += regExpEscape(c);
+        }
+        return [re, (0, unescape_js_1.unescape)(glob), !!hasMagic, uflag];
+    }
+}
+ast$1.AST = AST;
+
+var _escape = {};
+
+Object.defineProperty(_escape, "__esModule", { value: true });
+_escape.escape = void 0;
+/**
+ * Escape all magic characters in a glob pattern.
+ *
+ * If the {@link windowsPathsNoEscape | GlobOptions.windowsPathsNoEscape}
+ * option is used, then characters are escaped by wrapping in `[]`, because
+ * a magic character wrapped in a character class can only be satisfied by
+ * that exact character.  In this mode, `\` is _not_ escaped, because it is
+ * not interpreted as a magic character, but instead as a path separator.
+ */
+const escape = (s, { windowsPathsNoEscape = false, } = {}) => {
+    // don't need to escape +@! because we escape the parens
+    // that make those magic, and escaping ! as [!] isn't valid,
+    // because [!]] is a valid glob class meaning not ']'.
+    return windowsPathsNoEscape
+        ? s.replace(/[?*()[\]]/g, '[$&]')
+        : s.replace(/[?*()[\]\\]/g, '\\$&');
+};
+_escape.escape = escape;
+
+(function (exports) {
+	var __importDefault = (commonjsGlobal && commonjsGlobal.__importDefault) || function (mod) {
+	    return (mod && mod.__esModule) ? mod : { "default": mod };
+	};
+	Object.defineProperty(exports, "__esModule", { value: true });
+	exports.unescape = exports.escape = exports.AST = exports.Minimatch = exports.match = exports.makeRe = exports.braceExpand = exports.defaults = exports.filter = exports.GLOBSTAR = exports.sep = exports.minimatch = void 0;
+	const brace_expansion_1 = __importDefault(braceExpansion);
+	const assert_valid_pattern_js_1 = assertValidPattern$1;
+	const ast_js_1 = ast$1;
+	const escape_js_1 = _escape;
+	const unescape_js_1 = _unescape;
+	const minimatch = (p, pattern, options = {}) => {
+	    (0, assert_valid_pattern_js_1.assertValidPattern)(pattern);
+	    // shortcut: comments match nothing.
+	    if (!options.nocomment && pattern.charAt(0) === '#') {
+	        return false;
+	    }
+	    return new Minimatch(pattern, options).match(p);
+	};
+	exports.minimatch = minimatch;
+	// Optimized checking for the most common glob patterns.
+	const starDotExtRE = /^\*+([^+@!?\*\[\(]*)$/;
+	const starDotExtTest = (ext) => (f) => !f.startsWith('.') && f.endsWith(ext);
+	const starDotExtTestDot = (ext) => (f) => f.endsWith(ext);
+	const starDotExtTestNocase = (ext) => {
+	    ext = ext.toLowerCase();
+	    return (f) => !f.startsWith('.') && f.toLowerCase().endsWith(ext);
+	};
+	const starDotExtTestNocaseDot = (ext) => {
+	    ext = ext.toLowerCase();
+	    return (f) => f.toLowerCase().endsWith(ext);
+	};
+	const starDotStarRE = /^\*+\.\*+$/;
+	const starDotStarTest = (f) => !f.startsWith('.') && f.includes('.');
+	const starDotStarTestDot = (f) => f !== '.' && f !== '..' && f.includes('.');
+	const dotStarRE = /^\.\*+$/;
+	const dotStarTest = (f) => f !== '.' && f !== '..' && f.startsWith('.');
+	const starRE = /^\*+$/;
+	const starTest = (f) => f.length !== 0 && !f.startsWith('.');
+	const starTestDot = (f) => f.length !== 0 && f !== '.' && f !== '..';
+	const qmarksRE = /^\?+([^+@!?\*\[\(]*)?$/;
+	const qmarksTestNocase = ([$0, ext = '']) => {
+	    const noext = qmarksTestNoExt([$0]);
+	    if (!ext)
+	        return noext;
+	    ext = ext.toLowerCase();
+	    return (f) => noext(f) && f.toLowerCase().endsWith(ext);
+	};
+	const qmarksTestNocaseDot = ([$0, ext = '']) => {
+	    const noext = qmarksTestNoExtDot([$0]);
+	    if (!ext)
+	        return noext;
+	    ext = ext.toLowerCase();
+	    return (f) => noext(f) && f.toLowerCase().endsWith(ext);
+	};
+	const qmarksTestDot = ([$0, ext = '']) => {
+	    const noext = qmarksTestNoExtDot([$0]);
+	    return !ext ? noext : (f) => noext(f) && f.endsWith(ext);
+	};
+	const qmarksTest = ([$0, ext = '']) => {
+	    const noext = qmarksTestNoExt([$0]);
+	    return !ext ? noext : (f) => noext(f) && f.endsWith(ext);
+	};
+	const qmarksTestNoExt = ([$0]) => {
+	    const len = $0.length;
+	    return (f) => f.length === len && !f.startsWith('.');
+	};
+	const qmarksTestNoExtDot = ([$0]) => {
+	    const len = $0.length;
+	    return (f) => f.length === len && f !== '.' && f !== '..';
+	};
+	/* c8 ignore start */
+	const defaultPlatform = (typeof process === 'object' && process
+	    ? (typeof process.env === 'object' &&
+	        process.env &&
+	        process.env.__MINIMATCH_TESTING_PLATFORM__) ||
+	        process.platform
+	    : 'posix');
+	const path = {
+	    win32: { sep: '\\' },
+	    posix: { sep: '/' },
+	};
+	/* c8 ignore stop */
+	exports.sep = defaultPlatform === 'win32' ? path.win32.sep : path.posix.sep;
+	exports.minimatch.sep = exports.sep;
+	exports.GLOBSTAR = Symbol('globstar **');
+	exports.minimatch.GLOBSTAR = exports.GLOBSTAR;
+	// any single thing other than /
+	// don't need to escape / when using new RegExp()
+	const qmark = '[^/]';
+	// * => any number of characters
+	const star = qmark + '*?';
+	// ** when dots are allowed.  Anything goes, except .. and .
+	// not (^ or / followed by one or two dots followed by $ or /),
+	// followed by anything, any number of times.
+	const twoStarDot = '(?:(?!(?:\\/|^)(?:\\.{1,2})($|\\/)).)*?';
+	// not a ^ or / followed by a dot,
+	// followed by anything, any number of times.
+	const twoStarNoDot = '(?:(?!(?:\\/|^)\\.).)*?';
+	const filter = (pattern, options = {}) => (p) => (0, exports.minimatch)(p, pattern, options);
+	exports.filter = filter;
+	exports.minimatch.filter = exports.filter;
+	const ext = (a, b = {}) => Object.assign({}, a, b);
+	const defaults = (def) => {
+	    if (!def || typeof def !== 'object' || !Object.keys(def).length) {
+	        return exports.minimatch;
+	    }
+	    const orig = exports.minimatch;
+	    const m = (p, pattern, options = {}) => orig(p, pattern, ext(def, options));
+	    return Object.assign(m, {
+	        Minimatch: class Minimatch extends orig.Minimatch {
+	            constructor(pattern, options = {}) {
+	                super(pattern, ext(def, options));
+	            }
+	            static defaults(options) {
+	                return orig.defaults(ext(def, options)).Minimatch;
+	            }
+	        },
+	        AST: class AST extends orig.AST {
+	            /* c8 ignore start */
+	            constructor(type, parent, options = {}) {
+	                super(type, parent, ext(def, options));
+	            }
+	            /* c8 ignore stop */
+	            static fromGlob(pattern, options = {}) {
+	                return orig.AST.fromGlob(pattern, ext(def, options));
+	            }
+	        },
+	        unescape: (s, options = {}) => orig.unescape(s, ext(def, options)),
+	        escape: (s, options = {}) => orig.escape(s, ext(def, options)),
+	        filter: (pattern, options = {}) => orig.filter(pattern, ext(def, options)),
+	        defaults: (options) => orig.defaults(ext(def, options)),
+	        makeRe: (pattern, options = {}) => orig.makeRe(pattern, ext(def, options)),
+	        braceExpand: (pattern, options = {}) => orig.braceExpand(pattern, ext(def, options)),
+	        match: (list, pattern, options = {}) => orig.match(list, pattern, ext(def, options)),
+	        sep: orig.sep,
+	        GLOBSTAR: exports.GLOBSTAR,
+	    });
+	};
+	exports.defaults = defaults;
+	exports.minimatch.defaults = exports.defaults;
+	// Brace expansion:
+	// a{b,c}d -> abd acd
+	// a{b,}c -> abc ac
+	// a{0..3}d -> a0d a1d a2d a3d
+	// a{b,c{d,e}f}g -> abg acdfg acefg
+	// a{b,c}d{e,f}g -> abdeg acdeg abdeg abdfg
+	//
+	// Invalid sets are not expanded.
+	// a{2..}b -> a{2..}b
+	// a{b}c -> a{b}c
+	const braceExpand = (pattern, options = {}) => {
+	    (0, assert_valid_pattern_js_1.assertValidPattern)(pattern);
+	    // Thanks to Yeting Li <https://github.com/yetingli> for
+	    // improving this regexp to avoid a ReDOS vulnerability.
+	    if (options.nobrace || !/\{(?:(?!\{).)*\}/.test(pattern)) {
+	        // shortcut. no need to expand.
+	        return [pattern];
+	    }
+	    return (0, brace_expansion_1.default)(pattern);
+	};
+	exports.braceExpand = braceExpand;
+	exports.minimatch.braceExpand = exports.braceExpand;
+	// parse a component of the expanded set.
+	// At this point, no pattern may contain "/" in it
+	// so we're going to return a 2d array, where each entry is the full
+	// pattern, split on '/', and then turned into a regular expression.
+	// A regexp is made at the end which joins each array with an
+	// escaped /, and another full one which joins each regexp with |.
+	//
+	// Following the lead of Bash 4.1, note that "**" only has special meaning
+	// when it is the *only* thing in a path portion.  Otherwise, any series
+	// of * is equivalent to a single *.  Globstar behavior is enabled by
+	// default, and can be disabled by setting options.noglobstar.
+	const makeRe = (pattern, options = {}) => new Minimatch(pattern, options).makeRe();
+	exports.makeRe = makeRe;
+	exports.minimatch.makeRe = exports.makeRe;
+	const match = (list, pattern, options = {}) => {
+	    const mm = new Minimatch(pattern, options);
+	    list = list.filter(f => mm.match(f));
+	    if (mm.options.nonull && !list.length) {
+	        list.push(pattern);
+	    }
+	    return list;
+	};
+	exports.match = match;
+	exports.minimatch.match = exports.match;
+	// replace stuff like \* with *
+	const globMagic = /[?*]|[+@!]\(.*?\)|\[|\]/;
+	const regExpEscape = (s) => s.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+	class Minimatch {
+	    options;
+	    set;
+	    pattern;
+	    windowsPathsNoEscape;
+	    nonegate;
+	    negate;
+	    comment;
+	    empty;
+	    preserveMultipleSlashes;
+	    partial;
+	    globSet;
+	    globParts;
+	    nocase;
+	    isWindows;
+	    platform;
+	    windowsNoMagicRoot;
+	    regexp;
+	    constructor(pattern, options = {}) {
+	        (0, assert_valid_pattern_js_1.assertValidPattern)(pattern);
+	        options = options || {};
+	        this.options = options;
+	        this.pattern = pattern;
+	        this.platform = options.platform || defaultPlatform;
+	        this.isWindows = this.platform === 'win32';
+	        this.windowsPathsNoEscape =
+	            !!options.windowsPathsNoEscape || options.allowWindowsEscape === false;
+	        if (this.windowsPathsNoEscape) {
+	            this.pattern = this.pattern.replace(/\\/g, '/');
+	        }
+	        this.preserveMultipleSlashes = !!options.preserveMultipleSlashes;
+	        this.regexp = null;
+	        this.negate = false;
+	        this.nonegate = !!options.nonegate;
+	        this.comment = false;
+	        this.empty = false;
+	        this.partial = !!options.partial;
+	        this.nocase = !!this.options.nocase;
+	        this.windowsNoMagicRoot =
+	            options.windowsNoMagicRoot !== undefined
+	                ? options.windowsNoMagicRoot
+	                : !!(this.isWindows && this.nocase);
+	        this.globSet = [];
+	        this.globParts = [];
+	        this.set = [];
+	        // make the set of regexps etc.
+	        this.make();
+	    }
+	    hasMagic() {
+	        if (this.options.magicalBraces && this.set.length > 1) {
+	            return true;
+	        }
+	        for (const pattern of this.set) {
+	            for (const part of pattern) {
+	                if (typeof part !== 'string')
+	                    return true;
+	            }
+	        }
+	        return false;
+	    }
+	    debug(..._) { }
+	    make() {
+	        const pattern = this.pattern;
+	        const options = this.options;
+	        // empty patterns and comments match nothing.
+	        if (!options.nocomment && pattern.charAt(0) === '#') {
+	            this.comment = true;
+	            return;
+	        }
+	        if (!pattern) {
+	            this.empty = true;
+	            return;
+	        }
+	        // step 1: figure out negation, etc.
+	        this.parseNegate();
+	        // step 2: expand braces
+	        this.globSet = [...new Set(this.braceExpand())];
+	        if (options.debug) {
+	            this.debug = (...args) => console.error(...args);
+	        }
+	        this.debug(this.pattern, this.globSet);
+	        // step 3: now we have a set, so turn each one into a series of
+	        // path-portion matching patterns.
+	        // These will be regexps, except in the case of "**", which is
+	        // set to the GLOBSTAR object for globstar behavior,
+	        // and will not contain any / characters
+	        //
+	        // First, we preprocess to make the glob pattern sets a bit simpler
+	        // and deduped.  There are some perf-killing patterns that can cause
+	        // problems with a glob walk, but we can simplify them down a bit.
+	        const rawGlobParts = this.globSet.map(s => this.slashSplit(s));
+	        this.globParts = this.preprocess(rawGlobParts);
+	        this.debug(this.pattern, this.globParts);
+	        // glob --> regexps
+	        let set = this.globParts.map((s, _, __) => {
+	            if (this.isWindows && this.windowsNoMagicRoot) {
+	                // check if it's a drive or unc path.
+	                const isUNC = s[0] === '' &&
+	                    s[1] === '' &&
+	                    (s[2] === '?' || !globMagic.test(s[2])) &&
+	                    !globMagic.test(s[3]);
+	                const isDrive = /^[a-z]:/i.test(s[0]);
+	                if (isUNC) {
+	                    return [...s.slice(0, 4), ...s.slice(4).map(ss => this.parse(ss))];
+	                }
+	                else if (isDrive) {
+	                    return [s[0], ...s.slice(1).map(ss => this.parse(ss))];
+	                }
+	            }
+	            return s.map(ss => this.parse(ss));
+	        });
+	        this.debug(this.pattern, set);
+	        // filter out everything that didn't compile properly.
+	        this.set = set.filter(s => s.indexOf(false) === -1);
+	        // do not treat the ? in UNC paths as magic
+	        if (this.isWindows) {
+	            for (let i = 0; i < this.set.length; i++) {
+	                const p = this.set[i];
+	                if (p[0] === '' &&
+	                    p[1] === '' &&
+	                    this.globParts[i][2] === '?' &&
+	                    typeof p[3] === 'string' &&
+	                    /^[a-z]:$/i.test(p[3])) {
+	                    p[2] = '?';
+	                }
+	            }
+	        }
+	        this.debug(this.pattern, this.set);
+	    }
+	    // various transforms to equivalent pattern sets that are
+	    // faster to process in a filesystem walk.  The goal is to
+	    // eliminate what we can, and push all ** patterns as far
+	    // to the right as possible, even if it increases the number
+	    // of patterns that we have to process.
+	    preprocess(globParts) {
+	        // if we're not in globstar mode, then turn all ** into *
+	        if (this.options.noglobstar) {
+	            for (let i = 0; i < globParts.length; i++) {
+	                for (let j = 0; j < globParts[i].length; j++) {
+	                    if (globParts[i][j] === '**') {
+	                        globParts[i][j] = '*';
+	                    }
+	                }
+	            }
+	        }
+	        const { optimizationLevel = 1 } = this.options;
+	        if (optimizationLevel >= 2) {
+	            // aggressive optimization for the purpose of fs walking
+	            globParts = this.firstPhasePreProcess(globParts);
+	            globParts = this.secondPhasePreProcess(globParts);
+	        }
+	        else if (optimizationLevel >= 1) {
+	            // just basic optimizations to remove some .. parts
+	            globParts = this.levelOneOptimize(globParts);
+	        }
+	        else {
+	            // just collapse multiple ** portions into one
+	            globParts = this.adjascentGlobstarOptimize(globParts);
+	        }
+	        return globParts;
+	    }
+	    // just get rid of adjascent ** portions
+	    adjascentGlobstarOptimize(globParts) {
+	        return globParts.map(parts => {
+	            let gs = -1;
+	            while (-1 !== (gs = parts.indexOf('**', gs + 1))) {
+	                let i = gs;
+	                while (parts[i + 1] === '**') {
+	                    i++;
+	                }
+	                if (i !== gs) {
+	                    parts.splice(gs, i - gs);
+	                }
+	            }
+	            return parts;
+	        });
+	    }
+	    // get rid of adjascent ** and resolve .. portions
+	    levelOneOptimize(globParts) {
+	        return globParts.map(parts => {
+	            parts = parts.reduce((set, part) => {
+	                const prev = set[set.length - 1];
+	                if (part === '**' && prev === '**') {
+	                    return set;
+	                }
+	                if (part === '..') {
+	                    if (prev && prev !== '..' && prev !== '.' && prev !== '**') {
+	                        set.pop();
+	                        return set;
+	                    }
+	                }
+	                set.push(part);
+	                return set;
+	            }, []);
+	            return parts.length === 0 ? [''] : parts;
+	        });
+	    }
+	    levelTwoFileOptimize(parts) {
+	        if (!Array.isArray(parts)) {
+	            parts = this.slashSplit(parts);
+	        }
+	        let didSomething = false;
+	        do {
+	            didSomething = false;
+	            // <pre>/<e>/<rest> -> <pre>/<rest>
+	            if (!this.preserveMultipleSlashes) {
+	                for (let i = 1; i < parts.length - 1; i++) {
+	                    const p = parts[i];
+	                    // don't squeeze out UNC patterns
+	                    if (i === 1 && p === '' && parts[0] === '')
+	                        continue;
+	                    if (p === '.' || p === '') {
+	                        didSomething = true;
+	                        parts.splice(i, 1);
+	                        i--;
+	                    }
+	                }
+	                if (parts[0] === '.' &&
+	                    parts.length === 2 &&
+	                    (parts[1] === '.' || parts[1] === '')) {
+	                    didSomething = true;
+	                    parts.pop();
+	                }
+	            }
+	            // <pre>/<p>/../<rest> -> <pre>/<rest>
+	            let dd = 0;
+	            while (-1 !== (dd = parts.indexOf('..', dd + 1))) {
+	                const p = parts[dd - 1];
+	                if (p && p !== '.' && p !== '..' && p !== '**') {
+	                    didSomething = true;
+	                    parts.splice(dd - 1, 2);
+	                    dd -= 2;
+	                }
+	            }
+	        } while (didSomething);
+	        return parts.length === 0 ? [''] : parts;
+	    }
+	    // First phase: single-pattern processing
+	    // <pre> is 1 or more portions
+	    // <rest> is 1 or more portions
+	    // <p> is any portion other than ., .., '', or **
+	    // <e> is . or ''
+	    //
+	    // **/.. is *brutal* for filesystem walking performance, because
+	    // it effectively resets the recursive walk each time it occurs,
+	    // and ** cannot be reduced out by a .. pattern part like a regexp
+	    // or most strings (other than .., ., and '') can be.
+	    //
+	    // <pre>/**/../<p>/<p>/<rest> -> {<pre>/../<p>/<p>/<rest>,<pre>/**/<p>/<p>/<rest>}
+	    // <pre>/<e>/<rest> -> <pre>/<rest>
+	    // <pre>/<p>/../<rest> -> <pre>/<rest>
+	    // **/**/<rest> -> **/<rest>
+	    //
+	    // **/*/<rest> -> */**/<rest> <== not valid because ** doesn't follow
+	    // this WOULD be allowed if ** did follow symlinks, or * didn't
+	    firstPhasePreProcess(globParts) {
+	        let didSomething = false;
+	        do {
+	            didSomething = false;
+	            // <pre>/**/../<p>/<p>/<rest> -> {<pre>/../<p>/<p>/<rest>,<pre>/**/<p>/<p>/<rest>}
+	            for (let parts of globParts) {
+	                let gs = -1;
+	                while (-1 !== (gs = parts.indexOf('**', gs + 1))) {
+	                    let gss = gs;
+	                    while (parts[gss + 1] === '**') {
+	                        // <pre>/**/**/<rest> -> <pre>/**/<rest>
+	                        gss++;
+	                    }
+	                    // eg, if gs is 2 and gss is 4, that means we have 3 **
+	                    // parts, and can remove 2 of them.
+	                    if (gss > gs) {
+	                        parts.splice(gs + 1, gss - gs);
+	                    }
+	                    let next = parts[gs + 1];
+	                    const p = parts[gs + 2];
+	                    const p2 = parts[gs + 3];
+	                    if (next !== '..')
+	                        continue;
+	                    if (!p ||
+	                        p === '.' ||
+	                        p === '..' ||
+	                        !p2 ||
+	                        p2 === '.' ||
+	                        p2 === '..') {
+	                        continue;
+	                    }
+	                    didSomething = true;
+	                    // edit parts in place, and push the new one
+	                    parts.splice(gs, 1);
+	                    const other = parts.slice(0);
+	                    other[gs] = '**';
+	                    globParts.push(other);
+	                    gs--;
+	                }
+	                // <pre>/<e>/<rest> -> <pre>/<rest>
+	                if (!this.preserveMultipleSlashes) {
+	                    for (let i = 1; i < parts.length - 1; i++) {
+	                        const p = parts[i];
+	                        // don't squeeze out UNC patterns
+	                        if (i === 1 && p === '' && parts[0] === '')
+	                            continue;
+	                        if (p === '.' || p === '') {
+	                            didSomething = true;
+	                            parts.splice(i, 1);
+	                            i--;
+	                        }
+	                    }
+	                    if (parts[0] === '.' &&
+	                        parts.length === 2 &&
+	                        (parts[1] === '.' || parts[1] === '')) {
+	                        didSomething = true;
+	                        parts.pop();
+	                    }
+	                }
+	                // <pre>/<p>/../<rest> -> <pre>/<rest>
+	                let dd = 0;
+	                while (-1 !== (dd = parts.indexOf('..', dd + 1))) {
+	                    const p = parts[dd - 1];
+	                    if (p && p !== '.' && p !== '..' && p !== '**') {
+	                        didSomething = true;
+	                        const needDot = dd === 1 && parts[dd + 1] === '**';
+	                        const splin = needDot ? ['.'] : [];
+	                        parts.splice(dd - 1, 2, ...splin);
+	                        if (parts.length === 0)
+	                            parts.push('');
+	                        dd -= 2;
+	                    }
+	                }
+	            }
+	        } while (didSomething);
+	        return globParts;
+	    }
+	    // second phase: multi-pattern dedupes
+	    // {<pre>/*/<rest>,<pre>/<p>/<rest>} -> <pre>/*/<rest>
+	    // {<pre>/<rest>,<pre>/<rest>} -> <pre>/<rest>
+	    // {<pre>/**/<rest>,<pre>/<rest>} -> <pre>/**/<rest>
+	    //
+	    // {<pre>/**/<rest>,<pre>/**/<p>/<rest>} -> <pre>/**/<rest>
+	    // ^-- not valid because ** doens't follow symlinks
+	    secondPhasePreProcess(globParts) {
+	        for (let i = 0; i < globParts.length - 1; i++) {
+	            for (let j = i + 1; j < globParts.length; j++) {
+	                const matched = this.partsMatch(globParts[i], globParts[j], !this.preserveMultipleSlashes);
+	                if (matched) {
+	                    globParts[i] = [];
+	                    globParts[j] = matched;
+	                    break;
+	                }
+	            }
+	        }
+	        return globParts.filter(gs => gs.length);
+	    }
+	    partsMatch(a, b, emptyGSMatch = false) {
+	        let ai = 0;
+	        let bi = 0;
+	        let result = [];
+	        let which = '';
+	        while (ai < a.length && bi < b.length) {
+	            if (a[ai] === b[bi]) {
+	                result.push(which === 'b' ? b[bi] : a[ai]);
+	                ai++;
+	                bi++;
+	            }
+	            else if (emptyGSMatch && a[ai] === '**' && b[bi] === a[ai + 1]) {
+	                result.push(a[ai]);
+	                ai++;
+	            }
+	            else if (emptyGSMatch && b[bi] === '**' && a[ai] === b[bi + 1]) {
+	                result.push(b[bi]);
+	                bi++;
+	            }
+	            else if (a[ai] === '*' &&
+	                b[bi] &&
+	                (this.options.dot || !b[bi].startsWith('.')) &&
+	                b[bi] !== '**') {
+	                if (which === 'b')
+	                    return false;
+	                which = 'a';
+	                result.push(a[ai]);
+	                ai++;
+	                bi++;
+	            }
+	            else if (b[bi] === '*' &&
+	                a[ai] &&
+	                (this.options.dot || !a[ai].startsWith('.')) &&
+	                a[ai] !== '**') {
+	                if (which === 'a')
+	                    return false;
+	                which = 'b';
+	                result.push(b[bi]);
+	                ai++;
+	                bi++;
+	            }
+	            else {
+	                return false;
+	            }
+	        }
+	        // if we fall out of the loop, it means they two are identical
+	        // as long as their lengths match
+	        return a.length === b.length && result;
+	    }
+	    parseNegate() {
+	        if (this.nonegate)
+	            return;
+	        const pattern = this.pattern;
+	        let negate = false;
+	        let negateOffset = 0;
+	        for (let i = 0; i < pattern.length && pattern.charAt(i) === '!'; i++) {
+	            negate = !negate;
+	            negateOffset++;
+	        }
+	        if (negateOffset)
+	            this.pattern = pattern.slice(negateOffset);
+	        this.negate = negate;
+	    }
+	    // set partial to true to test if, for example,
+	    // "/a/b" matches the start of "/*/b/*/d"
+	    // Partial means, if you run out of file before you run
+	    // out of pattern, then that's fine, as long as all
+	    // the parts match.
+	    matchOne(file, pattern, partial = false) {
+	        const options = this.options;
+	        // UNC paths like //?/X:/... can match X:/... and vice versa
+	        // Drive letters in absolute drive or unc paths are always compared
+	        // case-insensitively.
+	        if (this.isWindows) {
+	            const fileDrive = typeof file[0] === 'string' && /^[a-z]:$/i.test(file[0]);
+	            const fileUNC = !fileDrive &&
+	                file[0] === '' &&
+	                file[1] === '' &&
+	                file[2] === '?' &&
+	                /^[a-z]:$/i.test(file[3]);
+	            const patternDrive = typeof pattern[0] === 'string' && /^[a-z]:$/i.test(pattern[0]);
+	            const patternUNC = !patternDrive &&
+	                pattern[0] === '' &&
+	                pattern[1] === '' &&
+	                pattern[2] === '?' &&
+	                typeof pattern[3] === 'string' &&
+	                /^[a-z]:$/i.test(pattern[3]);
+	            const fdi = fileUNC ? 3 : fileDrive ? 0 : undefined;
+	            const pdi = patternUNC ? 3 : patternDrive ? 0 : undefined;
+	            if (typeof fdi === 'number' && typeof pdi === 'number') {
+	                const [fd, pd] = [file[fdi], pattern[pdi]];
+	                if (fd.toLowerCase() === pd.toLowerCase()) {
+	                    pattern[pdi] = fd;
+	                    if (pdi > fdi) {
+	                        pattern = pattern.slice(pdi);
+	                    }
+	                    else if (fdi > pdi) {
+	                        file = file.slice(fdi);
+	                    }
+	                }
+	            }
+	        }
+	        // resolve and reduce . and .. portions in the file as well.
+	        // dont' need to do the second phase, because it's only one string[]
+	        const { optimizationLevel = 1 } = this.options;
+	        if (optimizationLevel >= 2) {
+	            file = this.levelTwoFileOptimize(file);
+	        }
+	        this.debug('matchOne', this, { file, pattern });
+	        this.debug('matchOne', file.length, pattern.length);
+	        for (var fi = 0, pi = 0, fl = file.length, pl = pattern.length; fi < fl && pi < pl; fi++, pi++) {
+	            this.debug('matchOne loop');
+	            var p = pattern[pi];
+	            var f = file[fi];
+	            this.debug(pattern, p, f);
+	            // should be impossible.
+	            // some invalid regexp stuff in the set.
+	            /* c8 ignore start */
+	            if (p === false) {
+	                return false;
+	            }
+	            /* c8 ignore stop */
+	            if (p === exports.GLOBSTAR) {
+	                this.debug('GLOBSTAR', [pattern, p, f]);
+	                // "**"
+	                // a/**/b/**/c would match the following:
+	                // a/b/x/y/z/c
+	                // a/x/y/z/b/c
+	                // a/b/x/b/x/c
+	                // a/b/c
+	                // To do this, take the rest of the pattern after
+	                // the **, and see if it would match the file remainder.
+	                // If so, return success.
+	                // If not, the ** "swallows" a segment, and try again.
+	                // This is recursively awful.
+	                //
+	                // a/**/b/**/c matching a/b/x/y/z/c
+	                // - a matches a
+	                // - doublestar
+	                //   - matchOne(b/x/y/z/c, b/**/c)
+	                //     - b matches b
+	                //     - doublestar
+	                //       - matchOne(x/y/z/c, c) -> no
+	                //       - matchOne(y/z/c, c) -> no
+	                //       - matchOne(z/c, c) -> no
+	                //       - matchOne(c, c) yes, hit
+	                var fr = fi;
+	                var pr = pi + 1;
+	                if (pr === pl) {
+	                    this.debug('** at the end');
+	                    // a ** at the end will just swallow the rest.
+	                    // We have found a match.
+	                    // however, it will not swallow /.x, unless
+	                    // options.dot is set.
+	                    // . and .. are *never* matched by **, for explosively
+	                    // exponential reasons.
+	                    for (; fi < fl; fi++) {
+	                        if (file[fi] === '.' ||
+	                            file[fi] === '..' ||
+	                            (!options.dot && file[fi].charAt(0) === '.'))
+	                            return false;
+	                    }
+	                    return true;
+	                }
+	                // ok, let's see if we can swallow whatever we can.
+	                while (fr < fl) {
+	                    var swallowee = file[fr];
+	                    this.debug('\nglobstar while', file, fr, pattern, pr, swallowee);
+	                    // XXX remove this slice.  Just pass the start index.
+	                    if (this.matchOne(file.slice(fr), pattern.slice(pr), partial)) {
+	                        this.debug('globstar found match!', fr, fl, swallowee);
+	                        // found a match.
+	                        return true;
+	                    }
+	                    else {
+	                        // can't swallow "." or ".." ever.
+	                        // can only swallow ".foo" when explicitly asked.
+	                        if (swallowee === '.' ||
+	                            swallowee === '..' ||
+	                            (!options.dot && swallowee.charAt(0) === '.')) {
+	                            this.debug('dot detected!', file, fr, pattern, pr);
+	                            break;
+	                        }
+	                        // ** swallows a segment, and continue.
+	                        this.debug('globstar swallow a segment, and continue');
+	                        fr++;
+	                    }
+	                }
+	                // no match was found.
+	                // However, in partial mode, we can't say this is necessarily over.
+	                /* c8 ignore start */
+	                if (partial) {
+	                    // ran out of file
+	                    this.debug('\n>>> no match, partial?', file, fr, pattern, pr);
+	                    if (fr === fl) {
+	                        return true;
+	                    }
+	                }
+	                /* c8 ignore stop */
+	                return false;
+	            }
+	            // something other than **
+	            // non-magic patterns just have to match exactly
+	            // patterns with magic have been turned into regexps.
+	            let hit;
+	            if (typeof p === 'string') {
+	                hit = f === p;
+	                this.debug('string match', p, f, hit);
+	            }
+	            else {
+	                hit = p.test(f);
+	                this.debug('pattern match', p, f, hit);
+	            }
+	            if (!hit)
+	                return false;
+	        }
+	        // Note: ending in / means that we'll get a final ""
+	        // at the end of the pattern.  This can only match a
+	        // corresponding "" at the end of the file.
+	        // If the file ends in /, then it can only match a
+	        // a pattern that ends in /, unless the pattern just
+	        // doesn't have any more for it. But, a/b/ should *not*
+	        // match "a/b/*", even though "" matches against the
+	        // [^/]*? pattern, except in partial mode, where it might
+	        // simply not be reached yet.
+	        // However, a/b/ should still satisfy a/*
+	        // now either we fell off the end of the pattern, or we're done.
+	        if (fi === fl && pi === pl) {
+	            // ran out of pattern and filename at the same time.
+	            // an exact hit!
+	            return true;
+	        }
+	        else if (fi === fl) {
+	            // ran out of file, but still had pattern left.
+	            // this is ok if we're doing the match as part of
+	            // a glob fs traversal.
+	            return partial;
+	        }
+	        else if (pi === pl) {
+	            // ran out of pattern, still have file left.
+	            // this is only acceptable if we're on the very last
+	            // empty segment of a file with a trailing slash.
+	            // a/* should match a/b/
+	            return fi === fl - 1 && file[fi] === '';
+	            /* c8 ignore start */
+	        }
+	        else {
+	            // should be unreachable.
+	            throw new Error('wtf?');
+	        }
+	        /* c8 ignore stop */
+	    }
+	    braceExpand() {
+	        return (0, exports.braceExpand)(this.pattern, this.options);
+	    }
+	    parse(pattern) {
+	        (0, assert_valid_pattern_js_1.assertValidPattern)(pattern);
+	        const options = this.options;
+	        // shortcuts
+	        if (pattern === '**')
+	            return exports.GLOBSTAR;
+	        if (pattern === '')
+	            return '';
+	        // far and away, the most common glob pattern parts are
+	        // *, *.*, and *.<ext>  Add a fast check method for those.
+	        let m;
+	        let fastTest = null;
+	        if ((m = pattern.match(starRE))) {
+	            fastTest = options.dot ? starTestDot : starTest;
+	        }
+	        else if ((m = pattern.match(starDotExtRE))) {
+	            fastTest = (options.nocase
+	                ? options.dot
+	                    ? starDotExtTestNocaseDot
+	                    : starDotExtTestNocase
+	                : options.dot
+	                    ? starDotExtTestDot
+	                    : starDotExtTest)(m[1]);
+	        }
+	        else if ((m = pattern.match(qmarksRE))) {
+	            fastTest = (options.nocase
+	                ? options.dot
+	                    ? qmarksTestNocaseDot
+	                    : qmarksTestNocase
+	                : options.dot
+	                    ? qmarksTestDot
+	                    : qmarksTest)(m);
+	        }
+	        else if ((m = pattern.match(starDotStarRE))) {
+	            fastTest = options.dot ? starDotStarTestDot : starDotStarTest;
+	        }
+	        else if ((m = pattern.match(dotStarRE))) {
+	            fastTest = dotStarTest;
+	        }
+	        const re = ast_js_1.AST.fromGlob(pattern, this.options).toMMPattern();
+	        if (fastTest && typeof re === 'object') {
+	            // Avoids overriding in frozen environments
+	            Reflect.defineProperty(re, 'test', { value: fastTest });
+	        }
+	        return re;
+	    }
+	    makeRe() {
+	        if (this.regexp || this.regexp === false)
+	            return this.regexp;
+	        // at this point, this.set is a 2d array of partial
+	        // pattern strings, or "**".
+	        //
+	        // It's better to use .match().  This function shouldn't
+	        // be used, really, but it's pretty convenient sometimes,
+	        // when you just want to work with a regex.
+	        const set = this.set;
+	        if (!set.length) {
+	            this.regexp = false;
+	            return this.regexp;
+	        }
+	        const options = this.options;
+	        const twoStar = options.noglobstar
+	            ? star
+	            : options.dot
+	                ? twoStarDot
+	                : twoStarNoDot;
+	        const flags = new Set(options.nocase ? ['i'] : []);
+	        // regexpify non-globstar patterns
+	        // if ** is only item, then we just do one twoStar
+	        // if ** is first, and there are more, prepend (\/|twoStar\/)? to next
+	        // if ** is last, append (\/twoStar|) to previous
+	        // if ** is in the middle, append (\/|\/twoStar\/) to previous
+	        // then filter out GLOBSTAR symbols
+	        let re = set
+	            .map(pattern => {
+	            const pp = pattern.map(p => {
+	                if (p instanceof RegExp) {
+	                    for (const f of p.flags.split(''))
+	                        flags.add(f);
+	                }
+	                return typeof p === 'string'
+	                    ? regExpEscape(p)
+	                    : p === exports.GLOBSTAR
+	                        ? exports.GLOBSTAR
+	                        : p._src;
+	            });
+	            pp.forEach((p, i) => {
+	                const next = pp[i + 1];
+	                const prev = pp[i - 1];
+	                if (p !== exports.GLOBSTAR || prev === exports.GLOBSTAR) {
+	                    return;
+	                }
+	                if (prev === undefined) {
+	                    if (next !== undefined && next !== exports.GLOBSTAR) {
+	                        pp[i + 1] = '(?:\\/|' + twoStar + '\\/)?' + next;
+	                    }
+	                    else {
+	                        pp[i] = twoStar;
+	                    }
+	                }
+	                else if (next === undefined) {
+	                    pp[i - 1] = prev + '(?:\\/|' + twoStar + ')?';
+	                }
+	                else if (next !== exports.GLOBSTAR) {
+	                    pp[i - 1] = prev + '(?:\\/|\\/' + twoStar + '\\/)' + next;
+	                    pp[i + 1] = exports.GLOBSTAR;
+	                }
+	            });
+	            return pp.filter(p => p !== exports.GLOBSTAR).join('/');
+	        })
+	            .join('|');
+	        // need to wrap in parens if we had more than one thing with |,
+	        // otherwise only the first will be anchored to ^ and the last to $
+	        const [open, close] = set.length > 1 ? ['(?:', ')'] : ['', ''];
+	        // must match entire pattern
+	        // ending in a * or ** will make it less strict.
+	        re = '^' + open + re + close + '$';
+	        // can match anything, as long as it's not this.
+	        if (this.negate)
+	            re = '^(?!' + re + ').+$';
+	        try {
+	            this.regexp = new RegExp(re, [...flags].join(''));
+	            /* c8 ignore start */
+	        }
+	        catch (ex) {
+	            // should be impossible
+	            this.regexp = false;
+	        }
+	        /* c8 ignore stop */
+	        return this.regexp;
+	    }
+	    slashSplit(p) {
+	        // if p starts with // on windows, we preserve that
+	        // so that UNC paths aren't broken.  Otherwise, any number of
+	        // / characters are coalesced into one, unless
+	        // preserveMultipleSlashes is set to true.
+	        if (this.preserveMultipleSlashes) {
+	            return p.split('/');
+	        }
+	        else if (this.isWindows && /^\/\/[^\/]+/.test(p)) {
+	            // add an extra '' for the one we lose
+	            return ['', ...p.split(/\/+/)];
+	        }
+	        else {
+	            return p.split(/\/+/);
+	        }
+	    }
+	    match(f, partial = this.partial) {
+	        this.debug('match', f, this.pattern);
+	        // short-circuit in the case of busted things.
+	        // comments, etc.
+	        if (this.comment) {
+	            return false;
+	        }
+	        if (this.empty) {
+	            return f === '';
+	        }
+	        if (f === '/' && partial) {
+	            return true;
+	        }
+	        const options = this.options;
+	        // windows: need to use /, not \
+	        if (this.isWindows) {
+	            f = f.split('\\').join('/');
+	        }
+	        // treat the test path as a set of pathparts.
+	        const ff = this.slashSplit(f);
+	        this.debug(this.pattern, 'split', ff);
+	        // just ONE of the pattern sets in this.set needs to match
+	        // in order for it to be valid.  If negating, then just one
+	        // match means that we have failed.
+	        // Either way, return on the first hit.
+	        const set = this.set;
+	        this.debug(this.pattern, 'set', set);
+	        // Find the basename of the path by looking for the last non-empty segment
+	        let filename = ff[ff.length - 1];
+	        if (!filename) {
+	            for (let i = ff.length - 2; !filename && i >= 0; i--) {
+	                filename = ff[i];
+	            }
+	        }
+	        for (let i = 0; i < set.length; i++) {
+	            const pattern = set[i];
+	            let file = ff;
+	            if (options.matchBase && pattern.length === 1) {
+	                file = [filename];
+	            }
+	            const hit = this.matchOne(file, pattern, partial);
+	            if (hit) {
+	                if (options.flipNegate) {
+	                    return true;
+	                }
+	                return !this.negate;
+	            }
+	        }
+	        // didn't get any hits.  this is success if it's a negative
+	        // pattern, failure otherwise.
+	        if (options.flipNegate) {
+	            return false;
+	        }
+	        return this.negate;
+	    }
+	    static defaults(def) {
+	        return exports.minimatch.defaults(def).Minimatch;
+	    }
+	}
+	exports.Minimatch = Minimatch;
+	/* c8 ignore start */
+	var ast_js_2 = ast$1;
+	Object.defineProperty(exports, "AST", { enumerable: true, get: function () { return ast_js_2.AST; } });
+	var escape_js_2 = _escape;
+	Object.defineProperty(exports, "escape", { enumerable: true, get: function () { return escape_js_2.escape; } });
+	var unescape_js_2 = _unescape;
+	Object.defineProperty(exports, "unescape", { enumerable: true, get: function () { return unescape_js_2.unescape; } });
+	/* c8 ignore stop */
+	exports.minimatch.AST = ast_js_1.AST;
+	exports.minimatch.Minimatch = Minimatch;
+	exports.minimatch.escape = escape_js_1.escape;
+	exports.minimatch.unescape = unescape_js_1.unescape;
+	
+} (commonjs));
+
+const {minimatch} = commonjs;
+const path = require$$1;
+
+/**
+ * @typedef {object} UseRecord
+ * @property {number} uses
+ * @property {Set<any>} declarations
+ * @property {Set<string>} dependencies
+ */
+
+postcssPruneVar.exports = (options = {}) => {
+	return {
+		postcssPlugin: 'postcss-prune-var',
+		Once(root) {
+			const {skip = []} = options;
+			if (skip.some((s) => minimatch(path.relative(process.cwd(), root.source.input.from), s, {dot: true}))) {
+				return;
+			}
+			/** @type Map<string, UseRecord> */
+			const records = new Map();
+			/** @type Set<string> */
+			const usedVars = new Set();
+
+			/** @type {(variable: string) => UseRecord} */
+			const getRecord = (variable) => {
+				let record = records.get(variable);
+				if (!record) {
+					record = {uses: 0, dependencies: new Set(), declarations: new Set()};
+					records.set(variable, record);
+				}
+				return record;
+			};
+
+			/** @type {(variable: string, ignoreList?: Set<any>) => void} */
+			const registerUse = (variable, ignoreList = new Set()) => {
+				const record = getRecord(variable);
+				record.uses++;
+				ignoreList.add(variable);
+				for (const dependency of record.dependencies) {
+					if (!ignoreList.has(dependency)) registerUse(dependency, ignoreList);
+				}
+			};
+
+			/** @type {(variable: string, dependency: string) => void} */
+			const registerDependency = (variable, dependency) => {
+				const record = getRecord(variable);
+				record.dependencies.add(dependency);
+			};
+
+			// Detect variable uses
+			root.walkDecls((decl) => {
+				const isVar = decl.prop.startsWith('--');
+
+				// Initiate record
+				if (isVar) getRecord(decl.prop).declarations.add(decl);
+
+				if (!decl.value.includes('var(')) return;
+
+				for (const match of decl.value.matchAll(/var\(\s*(?<name>--[^ ,\);]+)/g)) {
+					const variable = match.groups.name.trim();
+					if (isVar) {
+						registerDependency(decl.prop, variable);
+					} else {
+						usedVars.add(variable);
+					}
+				}
+			});
+
+			// We register variable uses only after all variables have been entered into the graph,
+			// otherwise we remove variables that were defined in CSS file after some property used them.
+			for (const variable of usedVars) {
+				registerUse(variable);
+			}
+
+			// Remove unused variables
+			for (const {uses, declarations} of records.values()) {
+				if (uses === 0) {
+					for (let decl of declarations) decl.remove();
+				}
+			}
+		},
+	};
+};
+
+postcssPruneVar.exports.postcss = true;
+
+var postcssPruneVarExports = postcssPruneVar.exports;
+var pruneVar = /*@__PURE__*/getDefaultExportFromCjs(postcssPruneVarExports);
+
+var removeDuplicateVariables = () => {
+  return (root) => {
+      root.walkRules(rule => {
+          const seenVars = new Map();
+
+          rule.walkDecls(decl => {
+              if (decl.prop.startsWith('--')) {
+                  // If the variable has been seen, remove the previous one
+                  if (seenVars.has(decl.prop)) {
+                      seenVars.get(decl.prop).remove();
+                  }
+                  // Store the current declaration
+                  seenVars.set(decl.prop, decl);
+              }
+          });
+      });
+  };
+};
 
 const __dirname$1 = require$$1$2.fileURLToPath(new URL('.', (typeof document === 'undefined' ? require('u' + 'rl').pathToFileURL(__filename).href : (_documentCurrentScript && _documentCurrentScript.src || new URL('index.cjs', document.baseURI).href))));
 const require$1 = module$1.createRequire((typeof document === 'undefined' ? require('u' + 'rl').pathToFileURL(__filename).href : (_documentCurrentScript && _documentCurrentScript.src || new URL('index.cjs', document.baseURI).href)));
@@ -50432,9 +54406,11 @@ class CssTransformator {
         const processedRules = [];
 
         for (let rule of rules) {
+            let newRule = null;
+
             if (this.isGroupType(rule)) {
                 // Grouped rule handling
-                const prefix = this.getGroupRuleId(rule);
+                const prefix = (groupPrefix ? `${groupPrefix}${this.GROUP_SEPERATOR}` : '') + this.getGroupRuleId(rule);
 
                 rule.rules = this.processRuleCollection({
                     rules: rule.rules,
@@ -50446,20 +54422,22 @@ class CssTransformator {
 
                 // If media query is empty remove
                 if (rule.rules.length === 0) {
-                    rule = null;
+                    newRule = null;
+                } else {
+                    newRule = rule;
                 }
             } else {
                 // Single rule -> can be processed
                 if (isCritical) {
-                    rule = this.processCriticalRule(rule, selectorMap, criticalSelectorsMap, groupPrefix);
+                    newRule = this.processCriticalRule(rule, selectorMap, criticalSelectorsMap, groupPrefix);
                 } else {
-                    rule = this.processNonCriticalRule(rule, criticalSelectorsMap, groupPrefix);
+                    newRule = this.processNonCriticalRule(rule, criticalSelectorsMap, groupPrefix);
                 }
             }
 
             // Fill new Array if no empty rule
-            if (rule !== null) {
-                processedRules.push(rule);
+            if (newRule !== null) {
+                processedRules.push(newRule);
             }
         }
 
@@ -50810,7 +54788,7 @@ var extractCriticalCss_script = async ({ sourceAst, loadTimeout, keepSelectors, 
 };
 
 const debug = doDebug('crittr:Crittr.class');
-const readFilePromise = util$e.promisify(fs$3.readFile);
+const readFilePromise = util$f.promisify(fs$3.readFile);
 const devices = defaultExport$1.devices;
 defaultExport$1.use(StealthPlugin$1());
 
@@ -51076,7 +55054,7 @@ class Crittr {
      */
     printErrors(errors) {
         if (errors) {
-            main_default.warn(chalk.red('Errors occured during processing. Please have a look and report them if necessary'));
+            main_default.warn(chalk$1.red('Errors occured during processing. Please have a look and report them if necessary'));
             if (Array.isArray(errors)) {
                 for (let error of errors) {
                     main_default.error(error);
@@ -51316,7 +55294,10 @@ class Crittr {
                     finalCss = await postcss$1([
                         sortMediaQueries({
                             sort: 'mobile-first', // default
+                            onlyTopLevel: true,
                         }),
+                        pruneVar(),
+                        removeDuplicateVariables(),
                     ]).process(finalCss, { from: undefined }).css;
 
                     // Handle restCSS
