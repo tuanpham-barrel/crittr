@@ -50,6 +50,7 @@
         "lodash": "^4.17.21",
         "object-hash": "^3.0.0",
         "postcss": "^8.4.33",
+        "postcss-prune-var": "^1.1.2",
         "postcss-sort-media-queries": "^5.2.0",
         "puppeteer": "^22.11.1",
         "puppeteer-extra": "^3.3.6",
