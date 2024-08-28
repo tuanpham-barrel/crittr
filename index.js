@@ -2,7 +2,7 @@ import { createRequire } from 'node:module';
 import log from '@dynamicabot/signales';
 import path from 'path';
 import url from 'url';
-import { Crittr } from './lib/classes/Crittr.class';
+import { Crittr } from './lib/classes/Crittr.class.js';
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
 const NODE_ENV = process.env.NODE_ENV || 'production';
 
