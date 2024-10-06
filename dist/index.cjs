@@ -32740,6 +32740,7 @@ var DEFAULTS = {
     DEVICE_IS_LANDSCAPE: false,
     TIMEOUT: 30000,
     PAGE_LOAD_TIMEOUT: 2000,
+    DELAY: 250,
     PAGE_RENDER_TIMEOUT: 300,
     PAGE_SCREENSHOT: false,
     OUTPUT_REMAINING_CSS: true,
@@ -53058,6 +53059,7 @@ class Crittr {
             timeout: DEFAULTS.TIMEOUT,
             pageLoadTimeout: DEFAULTS.PAGE_LOAD_TIMEOUT,
             outputRemainingCss: DEFAULTS.OUTPUT_REMAINING_CSS,
+            delay: DEFAULTS.DELAY,
             browser: {
                 userAgent: DEFAULTS.BROWSER_USER_AGENT,
                 isCacheEnabled: DEFAULTS.BROWSER_CACHE_ENABLED,
@@ -53732,7 +53734,7 @@ class Crittr {
             if (hasError === false) {
                 try {
                     debug('evaluateUrl - Extracting critical selectors');
-                    await new Promise(r => setTimeout(r, 250));
+                    await new Promise(r => setTimeout(r, this.options.delay));
                     if (this.options.takeScreenshots === true) {
                         let screenName = url.replace(/[^\w\s]/gi, '_') + '.png';
                         if (typeof this.options.screenshotNameGenerator === 'function') {
